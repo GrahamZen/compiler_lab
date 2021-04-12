@@ -1,5 +1,10 @@
-#include <string.h>  
-
+/*
+*Name:gramtree.h
+*Author:WangLin
+*Created on:2015-10-03
+*Function:定义语法树结点结构体&变长参数构造树&遍历树函数
+*/
+/*来自于词法分析器*/
 extern int yylineno;//行号
 extern char* yytext;//词
 void yyerror(char *s,...);//错误处理函数

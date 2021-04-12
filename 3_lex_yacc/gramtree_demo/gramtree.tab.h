@@ -49,29 +49,36 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    Le = 258,
-    Ge = 259,
-    Eq = 260,
-    Ne = 261,
-    Def = 262,
-    And = 263,
-    Or = 264,
-    IntConstant = 265,
-    Real = 266,
-    StringConstant = 267,
-    IDENTIFIER = 268,
-    Void = 269,
-    Int = 270,
-    While = 271,
-    If = 272,
-    Else = 273,
-    Return = 274,
-    OP = 275,
-    BEGIN_KEY = 276,
-    END_KEY = 277,
-    MAIN = 278,
-    WRITE = 279,
-    READ = 280
+    INTEGER = 258,
+    FLOAT = 259,
+    TYPE = 260,
+    STRUCT = 261,
+    RETURN = 262,
+    IF = 263,
+    ELSE = 264,
+    WHILE = 265,
+    ID = 266,
+    SPACE = 267,
+    SEMI = 268,
+    COMMA = 269,
+    ASSIGNOP = 270,
+    RELOP = 271,
+    PLUS = 272,
+    MINUS = 273,
+    STAR = 274,
+    DIV = 275,
+    AND = 276,
+    OR = 277,
+    DOT = 278,
+    NOT = 279,
+    LP = 280,
+    RP = 281,
+    LB = 282,
+    RB = 283,
+    LC = 284,
+    RC = 285,
+    AERROR = 286,
+    EOL = 287
   };
 #endif
 
@@ -79,11 +86,12 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 7 "gramtree.y"
+#line 13 "gramtree.y"
 
 struct ast* a;
+double d;
 
-#line 87 "gramtree.tab.h"
+#line 95 "gramtree.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
