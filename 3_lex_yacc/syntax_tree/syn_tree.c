@@ -1,4 +1,3 @@
-#include "token.h"
 #include "syn_tree.h"
 #include <stdarg.h>
 #include <stdio.h>
@@ -86,18 +85,4 @@ void traverse(struct AST *root, int level)
 }
 void yyerror(char *s) {
     fprintf(stderr, "line %d: %s\n", yylineno, s);
-}
-int main()
-{
-    // lexical_analysis();
-    printf(">");
-    return yyparse();
-}
-
-void lexical_analysis() {
-    int token;
-    while (token = yylex()) {
-        printoken(token);
-        printf("%s)\n",yytext);
-    }
 }

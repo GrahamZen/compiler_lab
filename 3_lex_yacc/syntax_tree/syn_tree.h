@@ -1,3 +1,5 @@
+#ifndef SYN_TREE_H
+#define SYN_TREE_H
 #include <string.h>  
 
 extern int yylineno;
@@ -20,3 +22,5 @@ struct AST
 
 struct AST *createASTNode(char* name,int num,...);
 void traverse(struct AST*,int level);
+
+#endif

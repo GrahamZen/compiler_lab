@@ -1,17 +1,29 @@
-all: syn_tree.out test
+CC=gcc
+TARGET= main
+LEXER= lex
+TESTFILE=test.cpp
+all: $(TARGET) lex
 
-test: test.cpp
-	./syn_tree.out < test.cpp
 
-syn_tree.out:syn_tree.y lex.yy.c
-	bison -d  syn_tree.y
-	gcc -o $@ syn_tree.tab.c lex.yy.c syn_tree.c 
+lex_test: lex
+	./$(LEXER) < $(TESTFILE)
 
-lexer: lex.yy.c
-	gcc -o $@ $<
+$(LEXER): lex_only.yy.c main.c
+	$(CC) -o $@  $^ -DLEX
+
+syn_test: $(TARGET) $(TESTFILE)
+	./$(TARGET) < $(TESTFILE)
+
+$(TARGET): main.c syn_tree.tab.c lex.yy.c syn_tree.c 
+
+syn_tree.tab.c:syn_tree.y
+	bison -d  $<
+
+lex_only.yy.c: lex_only.l
+	flex -o $@ $< 
 
 lex.yy.c: lexer.l
-	flex $<
+	flex $< 
 
 clean:
-	rm syn_tree.tab.c lex.yy.c syn_tree.tab.h *.out
+	rm syn_tree.tab.c *.yy.c syn_tree.tab.h $(LEXER) $(TARGET) 2> /dev/null || echo > /dev/null

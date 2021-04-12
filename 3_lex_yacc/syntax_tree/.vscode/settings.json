@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "*.cu": "cpp",
+        "stdarg.h": "c",
+        "syn_tree.h": "c",
+        "string.h": "c",
+        "token.h": "c",
+        "syn_tree.tab.h": "c"
+    }
+}
