@@ -16,7 +16,15 @@
 
 ## 实验步骤
 
-本次实验使用了linux下的flex和bison，flex使用DFA
+### 扩充语言
+
+Tiny语言参考https://jlu.myweb.cs.uwindsor.ca/214/language.htm。再其上增加了几个功能：
+
+1. while循环语句
+2. 使用and 和 or的表达式
+3. 
+
+本次实验使用了linux下的flex和bison，
 
 ### 词法分析
 

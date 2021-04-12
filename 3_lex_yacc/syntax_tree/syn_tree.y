@@ -60,7 +60,6 @@ Statement : Block{$$=createASTNode("Statement",1,$1);}
 LocalVarDecl : Type Identifier ';' {$$=createASTNode("LocalVarDecl",2,$1,$2);}
         | Type AssignStmt  {$$=createASTNode("LocalVarDecl",2,$1,$2);}
         | Type error ';' { yyerror("Maybe missing Identifier? \n"); }
-
         ;
 
 WhileStmt : WHILE '(' BoolExpression ')' Statement{$$=createASTNode("WhileStmt",3,$1,$3,$5);}

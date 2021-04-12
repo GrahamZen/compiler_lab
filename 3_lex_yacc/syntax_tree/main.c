@@ -1,5 +1,5 @@
 #ifndef LEX
-    #include "syn_tree.h"
+    #include "syn_tree.tab.h"
 #else
     #include "syn_tree.h"
     #include "token.h"
