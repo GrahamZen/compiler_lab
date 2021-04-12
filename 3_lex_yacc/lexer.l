@@ -1,10 +1,8 @@
 %{
-#define YYSTYPE char *
-#include "gramtree.tab.h"
 #include "gramtree.h"
+#include "gramtree.tab.h"
 int cur_line_num = 1;
 void lex_error(char* msg, int line);
-#define _DUPTEXT {yylval = strdup(yytext);}
 
 %}
 %option yylineno
@@ -25,30 +23,30 @@ IDENTIFIER          ([_a-zA-Z][_a-zA-Z0-9]*)
 {SINGLE_COMMENT1}   { /* skip for single line comment */    }
 {SINGLE_COMMENT2}   { /* skip for single line commnet */    }
 
-{OPERATOR}              { return yytext[0];         }   
+{OPERATOR}          { yylval.a=newast("OP",0,yylineno);return yytext[0];         }   
 
-"<="                    { return Le;              }
-">="                    { return Ge;              }
-":="                    { return Def;              }
-"=="                    { return Eq;              }
-"!="                    { return Ne;              }
-"&&"                    { return And;             }
-"||"                    { return Or;              }
-"INT"                   { return Int;             }
-"WHILE"                 { return While;           }
-"IF"                    { return If;              }
-"ELSE"                  { return Else;            }
-"RETURN"                { return Return;          }
-"WRITE"                 { return WRITE;           }
-"READ"                  { return READ;         }
-"BEGIN"                 { return BEGIN_KEY;         }
-"END"               { return END_KEY;         }
-"MAIN"                  { return MAIN;         }
+"<="                { yylval.a=newast("Le",0,yylineno);return Le;              }
+">="                { yylval.a=newast("Ge",0,yylineno);return Ge;              }
+":="                { yylval.a=newast("Def",0,yylineno);return Def;              }
+"=="                { yylval.a=newast("Eq",0,yylineno);return Eq;              }
+"!="                { yylval.a=newast("Ne",0,yylineno);return Ne;              }
+"&&"                { yylval.a=newast("And",0,yylineno);return And;             }
+"||"                { yylval.a=newast("Or",0,yylineno);return Or;              }
+"INT"               { yylval.a=newast("Int",0,yylineno);return Int;             }
+"WHILE"             { yylval.a=newast("While",0,yylineno);return While;           }
+"IF"                { yylval.a=newast("If",0,yylineno);return If;              }
+"ELSE"              { yylval.a=newast("Else",0,yylineno);return Else;            }
+"RETURN"            { yylval.a=newast("Return",0,yylineno);return Return;          }
+"WRITE"             { yylval.a=newast("WRITE",0,yylineno);return WRITE;           }
+"READ"           { yylval.a=newast("READ",0,yylineno);return READ;         }
+"BEGIN"           { yylval.a=newast("BEGIN",0,yylineno);return BEGIN_KEY;         }
+"END"           { yylval.a=newast("END",0,yylineno);return END_KEY;         }
+"MAIN"           { yylval.a=newast("END",0,yylineno);return MAIN;         }
 
-{DIGIT}                 {_DUPTEXT; return IntConstant;     }
-{NUMBER}                { _DUPTEXT;return Real;     }
-{STRING}                { _DUPTEXT;return StringConstant;  }
-{IDENTIFIER}            {  _DUPTEXT;return IDENTIFIER;      }
+{DIGIT}                 {yylval.a=newast("IntConstant",0,yylineno); return IntConstant;     }
+{NUMBER}                { yylval.a=newast("Real",0,yylineno);return Real;     }
+{STRING}                { yylval.a=newast("StringConstant",0,yylineno);return StringConstant;  }
+{IDENTIFIER}            {  yylval.a=newast("IDENTIFIER",0,yylineno);return IDENTIFIER;      }
 
 <<EOF>>             { return 0; }
 
