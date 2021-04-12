@@ -1,4 +1,4 @@
-all: gramtree.out clean
+all: gramtree.out
 
 gramtree.out:gramtree.y lexer.l gramtree.h
 	bison -d  gramtree.y
@@ -12,4 +12,4 @@ lex.yy.c: lexer.l
 	flex $<
 
 clean:
-	rm gramtree.tab.c lex.yy.c gramtree.tab.h
+	rm gramtree.tab.c lex.yy.c gramtree.tab.h *.out

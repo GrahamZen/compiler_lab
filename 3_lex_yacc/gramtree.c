@@ -1,27 +1,27 @@
-# include<stdio.h>
-# include<stdlib.h>
-# include<stdarg.h>//变长参数函数所需的头文件
-# include"gramtree.h"
+#include<stdio.h>
+#include<stdlib.h>
+#include<stdarg.h>//变长参数函数所需的头文件
+#include"gramtree.h"
 struct ast *newast(char* name,int num,...)//抽象语法树建立
 {
     va_list valist; //定义变长参数列表
-    struct ast *a=(struct ast*)malloc(sizeof(struct ast));//新生成的父节点
+    struct ast *root=(struct ast*)malloc(sizeof(struct ast));//新生成的父节点
     struct ast *temp=(struct ast*)malloc(sizeof(struct ast));
-    if(!a) 
+    if(!root) 
     {
         yyerror("out of space");
         exit(0);
     }
-    a->name=name;//语法单元名字
+    root->name=name;//语法单元名字
     va_start(valist,num);//初始化变长参数为num后的参数
 
     if(num>0)//num>0为非终结符：变长参数均为语法树结点，孩子兄弟表示法
     {
         temp=va_arg(valist, struct ast*);//取变长参数列表中的第一个结点设为a的左孩子
-        a->l=temp;
-        a->line=temp->line;//父节点a的行号等于左孩子的行号
+        root->l=temp;
+        root->line=temp->line;//父节点a的行号等于左孩子的行号
 
-        if(num>=2) //可以规约到a的语法单元>=2
+        if(num>1) //可以规约到a的语法单元>=2
         {
             for(int i=0; i<num-1; ++i)//取变长参数列表中的剩余结点，依次设置成兄弟结点
             {

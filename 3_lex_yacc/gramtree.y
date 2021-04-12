@@ -21,7 +21,7 @@ Program : MethodDecl {$$=newast("Program",1,$1);}
     |MethodDecl Program {$$=newast("Program",2,$1,$2);}
     ;
 
-MethodDecl : Type IDENTIFIER '(' FormalParams ')' Block{$$=newast("MethodDecl",5,$1,$2,$4,$6);}
+MethodDecl : Type IDENTIFIER '(' FormalParams ')' Block{$$=newast("MethodDecl",4,$1,$2,$4,$6);}
     | Type MAIN IDENTIFIER '(' FormalParams ')' Block{$$=newast("MethodDecl",5,$1,$2,$3,$5,$7);}
     ;
 FormalParams : FormalParams  ',' FormalParam{$$=newast("FormalParams",2,$1,$3);}
