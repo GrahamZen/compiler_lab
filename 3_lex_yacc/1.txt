@@ -1,3 +1,0 @@
-(IDENTIFIER,a)
-(Eq,==)
-(IDENTIFIER,a)

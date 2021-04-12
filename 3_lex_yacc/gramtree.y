@@ -53,9 +53,9 @@ LocalVarDecl : Type IDENTIFIER ';' {$$=newast("IDENTIFIER",2,$1,$2);}
         | Type AssignStmt  {$$=newast("IDENTIFIER",2,$1,$2);}
         ;
 
-Type : Int{$$=newast("Int",1,$1);}
-    | Real{$$=newast("Real",1,$1);}
-    | StringConstant{$$=newast("StringConstant",1,$1);}
+Type : Int{$$=newast("Type",1,$1);}
+    | Real{$$=newast("Type",1,$1);}
+    | StringConstant{$$=newast("Type",1,$1);}
     ;
 
 AssignStmt  : IDENTIFIER Def Expression ';'{$$=newast("AssignStmt",3,$1,$2,$3);}
