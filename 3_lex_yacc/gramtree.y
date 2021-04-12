@@ -1,31 +1,43 @@
 %{
 #include<unistd.h>
-#include<stdio.h>   
+#include<stdio.h> 
 #include "gramtree.h"
 %}
 
 %union{
 struct ast* a;
-double d;
 }
 
-%token  Le  Ge  Eq  Ne Def  And  Or  IntConstant Real 
-    StringConstant  IDENTIFIER  Void  Int  While 
-    If  Else  Return   Print 
-    ReadInt OP BEGIN_KEY END_KEY DECLARE MAIN WRITE READ
+%token <a> Le  Ge  Eq  Ne Def  And  Or  IntConstant Real  StringConstant  IDENTIFIER  Void  Int  While  If  Else  Return OP BEGIN_KEY END_KEY MAIN WRITE READ
+%type  <a> Programs Program MethodDecl FormalParams FormalParam Block Statements Statement LocalVarDecl 
+Type AssignStmt  ReturnStmt IfStmt    WriteStmt ReadStmt  BoolExpression Expression MultiplicativeExpr 
+PrimaryExpr ActualParams
 
 %%
-Program : MethodDecl Program| /* empty */
-Type : Int
-    | Real 
-    | StringConstant 
-MethodDecl : Type IDENTIFIER '(' FormalParams ')' Block
-    | Type IDENTIFIER '(' ')' Block
-FormalParams : FormalParam
-    | FormalParam  ',' FormalParams
-FormalParam : Type IDENTIFIER
+Programs :
+    Program
+    ;
+Program : MethodDecl 
+    |MethodDecl Program 
+    ;
 
-Block : BEGIN_KEY Statement END_KEY
+MethodDecl : Type IDENTIFIER '(' FormalParams ')' Block
+    | Type MAIN IDENTIFIER '(' FormalParams ')' Block
+    ;
+FormalParams : FormalParams  ',' FormalParam
+    | FormalParam
+    | /* empty */
+    ;
+FormalParam : Type IDENTIFIER
+    ;
+
+
+Block : BEGIN_KEY Statements END_KEY 
+    ;
+
+Statements :Statements Statement
+        | Statement
+        ;
 
 Statement : Block
         | LocalVarDecl  
@@ -34,29 +46,50 @@ Statement : Block
         | IfStmt
 	    | WriteStmt
 	    | ReadStmt
-        
+        ;
+
+
 LocalVarDecl : Type IDENTIFIER ';' 
         | Type AssignStmt  
+        ;
+
+Type : Int
+    | Real 
+    | StringConstant 
+    ;
 
 AssignStmt  : IDENTIFIER Def Expression ';'
            |  IDENTIFIER Def StringConstant ';'
+        ;
 ReturnStmt : Return Expression ';'
+        ;
 IfStmt    : If '(' BoolExpression ')' Statement
             | If '(' BoolExpression ')' Statement Else Statement
+        ;
 WriteStmt : WRITE '(' Expression ',' StringConstant ')' ';'
+        ;
 ReadStmt  : READ '(' IDENTIFIER ',' StringConstant ')' ';'
+        ;
 
-Expression : MultiplicativeExpr   '+' 
-            | '-' Expression
-MultiplicativeExpr : PrimaryExpr '*' MultiplicativeExpr
-            | PrimaryExpr '/'  MultiplicativeExpr
-            | PrimaryExpr
-PrimaryExpr : Int
-             | Real
-             | IDENTIFIER            
-             | '(' Expression ')'
-            //  | IDENTIFIER '(' ActualParams ')'
 BoolExpression : Expression Eq Expression 
-                 |Expression Ne Expression   
-// ActualParams : [Expression ( ',' Expression)*]
+                 |Expression Ne Expression 
+                 ;
+
+Expression : Expression   '+' MultiplicativeExpr 
+            | Expression '-' MultiplicativeExpr
+            | MultiplicativeExpr
+            ;
+MultiplicativeExpr : MultiplicativeExpr '*' PrimaryExpr
+            | MultiplicativeExpr '/'  PrimaryExpr
+            | PrimaryExpr
+            ;
+PrimaryExpr : IntConstant 
+             | Real 
+             | IDENTIFIER 
+             | '(' Expression ')' 
+             | IDENTIFIER '(' ActualParams ')'
+             ;
+ActualParams : ActualParams  ',' Expression
+            |  Expression
+            ;
 %%

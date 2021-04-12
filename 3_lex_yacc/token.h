@@ -11,7 +11,7 @@ static void printoken(int token) {
     static char* token_strs[] = {
         "Le", "Ge", "Eq", "Ne", "Def","And", "Or", "IntConstant","Real",
         "StringConstant", "IDENTIFIER",  "Int", "While",
-        "If", "Else", "Return", "OP","BEGIN","END","DECLARE","MAIN","WRITE","READ"
+        "If", "Else", "Return", "OP","BEGIN_KEY","END_KEY","DECLARE","MAIN","WRITE","READ"
     };
 
     if (token < 256) {
