@@ -12,12 +12,8 @@ struct AST *createASTNode(char *name, int num, ...)
     root->idName=NULL;
     root->leftNode=NULL;
     root->rightNode=NULL;
-    struct AST *child = (struct AST *)malloc(sizeof(struct AST));
-    child->idName=NULL;
-    child->leftNode=NULL;
-    child->rightNode=NULL;
     //examine if alloc failed
-    if (!root || !child)
+    if (!root)
     {
         yyerror("RUN OUT OF MEMORY.");
         exit(0);
@@ -28,7 +24,7 @@ struct AST *createASTNode(char *name, int num, ...)
     if (num > 0)
     {
         // get next argument
-        child = va_arg(valist, struct AST *);
+        struct AST *child = va_arg(valist, struct AST *);
         root->leftNode = child;
         // synthesize lineNo property from child
         root->lineNo = child->lineNo;
@@ -94,8 +90,11 @@ void destroy(struct AST *root){
         destroy(root->leftNode);
     if(root->rightNode)
         destroy(root->rightNode);
+    if(root->idName)
+        printf("%s\n",root->idName);
     free(root);
 }
+
 
 void yyerror(char *s) {
     fprintf(stderr, "line %d: %s\n", yylineno, s);
