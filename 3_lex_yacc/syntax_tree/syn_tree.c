@@ -9,7 +9,9 @@ struct AST *createASTNode(char *name, int num, ...)
 {
     va_list valist;
     struct AST *root = (struct AST *)malloc(sizeof(struct AST));
+    root->idName=root->leftNode=root->rightNode=NULL;
     struct AST *child = (struct AST *)malloc(sizeof(struct AST));
+    child->idName=child->leftNode=child->rightNode=NULL;
     //examine if alloc failed
     if (!root || !child)
     {
@@ -47,9 +49,8 @@ struct AST *createASTNode(char *name, int num, ...)
         */
         if (!strcmp(root->name, "Identifier") || !strcmp(root->name, "StringConstant"))
         {
-            char *tokenText = (char *)malloc(sizeof(char) * BUFFSIZE);
-            strcpy(tokenText, yytext);
-            root->idName = tokenText;
+            root->idName = (char *)malloc(sizeof(char) * BUFFSIZE);
+            strcpy(root->idName, yytext);
         }
         else if (!strcmp(root->name, "IntConstant"))
             root->intVal = atoi(yytext);

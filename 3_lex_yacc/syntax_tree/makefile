@@ -25,5 +25,13 @@ lex_only.yy.c: lex_only.l
 lex.yy.c: lexer.l
 	flex $< 
 
+check:$(TARGET)
+	valgrind --leak-check=full \
+			--show-leak-kinds=all \
+			--track-origins=yes \
+			--verbose \
+			--log-file=valgrind-out.txt \
+			./$(TARGET)<$(TESTFILE)
+
 clean:
-	rm syn_tree.tab.c *.yy.c syn_tree.tab.h $(LEXER) $(TARGET) 2> /dev/null || echo > /dev/null
+	rm *.log *.tab.c *.yy.c *.tab.h $(LEXER) $(TARGET) 2> /dev/null || echo > /dev/null
