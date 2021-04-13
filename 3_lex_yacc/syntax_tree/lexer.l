@@ -3,11 +3,9 @@
 #include "syn_tree.tab.h"
 int cur_line_num = 1;
 void lex_error(char* msg, int line);
-
 %}
 %option yylineno
 
-/* Definitions, note: \042 is '"' */
 DIGIT               ([0-9]+)
 NUMBER              {DIGIT}.{DIGIT}
 STRING              (\042[^\042\n]*\042)
@@ -18,39 +16,38 @@ Identifier          ([_a-zA-Z][_a-zA-Z0-9]*)
 
 %%
 
-[\n]                { cur_line_num++;                       }
-[ \t\r\a]+          { /* ignore all spaces */               }
-{SINGLE_COMMENT1}   { /* skip for single line comment */    }
-{SINGLE_COMMENT2}   { /* skip for single line commnet */    }
+[\n]                { cur_line_num++;                                                           }
+[ \t\r\a]+          { /* ignore all spaces */                                                   }
+{SINGLE_COMMENT1}   { /* skip for single line comment */                                        }
+{SINGLE_COMMENT2}   { /* skip for single line commnet */                                        }
 
-{OPERATOR}          { yylval.a=createASTNode("OP",0,yylineno);return yytext[0];         }   
+{OPERATOR}          { yylval.a=createASTNode("OP",0,yylineno);return yytext[0];                 }   
 
-"<="                { yylval.a=createASTNode("Le",0,yylineno);return Le;              }
-">="                { yylval.a=createASTNode("Ge",0,yylineno);return Ge;              }
-":="                { yylval.a=createASTNode("Def",0,yylineno);return Def;              }
-"=="                { yylval.a=createASTNode("Eq",0,yylineno);return Eq;              }
-"!="                { yylval.a=createASTNode("Ne",0,yylineno);return Ne;              }
-"&&"                { yylval.a=createASTNode("And",0,yylineno);return And;             }
-"||"                { yylval.a=createASTNode("Or",0,yylineno);return Or;              }
-"INT"               { yylval.a=createASTNode("Int",0,yylineno);return Int;             }
-"WHILE"             { yylval.a=createASTNode("WHILE",0,yylineno);return WHILE;           }
-"IF"                { yylval.a=createASTNode("If",0,yylineno);return If;              }
-"ELSE"              { yylval.a=createASTNode("Else",0,yylineno);return Else;            }
-"RETURN"            { yylval.a=createASTNode("Return",0,yylineno);return Return;          }
-"WRITE"             { yylval.a=createASTNode("WRITE",0,yylineno);return WRITE;           }
-"READ"           { yylval.a=createASTNode("READ",0,yylineno);return READ;         }
-"BEGIN"           { yylval.a=createASTNode("BEGIN",0,yylineno);return BEGIN_KEY;         }
-"END"           { yylval.a=createASTNode("END",0,yylineno);return END_KEY;         }
-"MAIN"           { yylval.a=createASTNode("END",0,yylineno);return MAIN;         }
+"<="                { yylval.a=createASTNode("Le",0,yylineno);return Le;                        }
+">="                { yylval.a=createASTNode("Ge",0,yylineno);return Ge;                        }
+":="                { yylval.a=createASTNode("Def",0,yylineno);return Def;                      }
+"=="                { yylval.a=createASTNode("Eq",0,yylineno);return Eq;                        }
+"!="                { yylval.a=createASTNode("Ne",0,yylineno);return Ne;                        }
+"&&"                { yylval.a=createASTNode("And",0,yylineno);return And;                      }
+"||"                { yylval.a=createASTNode("Or",0,yylineno);return Or;                        }
+"INT"               { yylval.a=createASTNode("Int",0,yylineno);return Int;                      }
+"WHILE"             { yylval.a=createASTNode("WHILE",0,yylineno);return WHILE;                  }
+"IF"                { yylval.a=createASTNode("If",0,yylineno);return If;                        }
+"ELSE"              { yylval.a=createASTNode("Else",0,yylineno);return Else;                    }
+"RETURN"            { yylval.a=createASTNode("Return",0,yylineno);return Return;                }
+"WRITE"             { yylval.a=createASTNode("WRITE",0,yylineno);return WRITE;                  }
+"READ"              { yylval.a=createASTNode("READ",0,yylineno);return READ;                    }
+"BEGIN"             { yylval.a=createASTNode("BEGIN",0,yylineno);return BEGIN_KEY;              }
+"END"               { yylval.a=createASTNode("END",0,yylineno);return END_KEY;                  }
+"MAIN"              { yylval.a=createASTNode("END",0,yylineno);return MAIN;                     }
+{DIGIT}             { yylval.a=createASTNode("IntConstant",0,yylineno); return IntConstant;     }
+{NUMBER}            { yylval.a=createASTNode("Real",0,yylineno);return Real;                    }
+{STRING}            { yylval.a=createASTNode("StringConstant",0,yylineno);return StringConstant;}
+{Identifier}        { yylval.a=createASTNode("Identifier",0,yylineno);return Identifier;        }
 
-{DIGIT}                 {yylval.a=createASTNode("IntConstant",0,yylineno); return IntConstant;     }
-{NUMBER}                { yylval.a=createASTNode("Real",0,yylineno);return Real;     }
-{STRING}                { yylval.a=createASTNode("StringConstant",0,yylineno);return StringConstant;  }
-{Identifier}            {  yylval.a=createASTNode("Identifier",0,yylineno);return Identifier;      }
+<<EOF>>             { return 0;                                                                 }
 
-<<EOF>>             { return 0; }
-
-.                   { lex_error("Unrecognized character", cur_line_num);        }
+.                   { lex_error("Unrecognized character", cur_line_num);                        }
 
 %%
 
@@ -61,4 +58,3 @@ void lex_error(char* msg, int line) {
 int yywrap(void) {
     return 1;
 }
-
