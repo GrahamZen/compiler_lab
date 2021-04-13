@@ -83,6 +83,15 @@ void traverse(struct AST *root, int level)
     traverse(root->leftNode, level + 1);
     traverse(root->rightNode, level);
 }
+void destroy(struct AST *root){
+    if(!root)return;
+    if(root->leftNode)
+        destroy(root->leftNode);
+    if(root->rightNode)
+        destroy(root->rightNode);
+    free(root);
+}
+
 void yyerror(char *s) {
     fprintf(stderr, "line %d: %s\n", yylineno, s);
 }
