@@ -6,8 +6,9 @@ void lex_error(char* msg, int line);
 %}
 %option yylineno
 
-DIGIT               ([0-9]+)
-NUMBER              {DIGIT}.{DIGIT}
+POSITIVE            ([0-9]+)
+INT                 [+-]?{POSITIVE}
+REAL                {INT}.{POSITIVE}
 STRING              (\042[^\042\n]*\042)
 OPERATOR            ([+*-/%=,;!<>(){}])
 SINGLE_COMMENT1     ("//"[^\n]*)
@@ -30,7 +31,8 @@ Identifier          ([_a-zA-Z][_a-zA-Z0-9]*)
 "!="                { yylval.a=createASTNode("Ne",0,yylineno);return Ne;                        }
 "&&"                { yylval.a=createASTNode("And",0,yylineno);return And;                      }
 "||"                { yylval.a=createASTNode("Or",0,yylineno);return Or;                        }
-"INT"               { yylval.a=createASTNode("Int",0,yylineno);return Int;                      }
+"INT"               { yylval.a=createASTNode("INT",0,yylineno);return INT;                      }
+"REAL"              { yylval.a=createASTNode("REAL",0,yylineno);return REAL;                    }
 "WHILE"             { yylval.a=createASTNode("WHILE",0,yylineno);return WHILE;                  }
 "IF"                { yylval.a=createASTNode("If",0,yylineno);return If;                        }
 "ELSE"              { yylval.a=createASTNode("Else",0,yylineno);return Else;                    }
@@ -40,14 +42,14 @@ Identifier          ([_a-zA-Z][_a-zA-Z0-9]*)
 "BEGIN"             { yylval.a=createASTNode("BEGIN",0,yylineno);return BEGIN_KEY;              }
 "END"               { yylval.a=createASTNode("END",0,yylineno);return END_KEY;                  }
 "MAIN"              { yylval.a=createASTNode("END",0,yylineno);return MAIN;                     }
-{DIGIT}             { yylval.a=createASTNode("IntConstant",0,yylineno); return IntConstant;     }
-{NUMBER}            { yylval.a=createASTNode("Real",0,yylineno);return Real;                    }
+{INT}             { yylval.a=createASTNode("IntConstant",0,yylineno); return IntConstant;     }
+{REAL}            { yylval.a=createASTNode("RealConstant",0,yylineno);return RealConstant;    }
 {STRING}            { yylval.a=createASTNode("StringConstant",0,yylineno);return StringConstant;}
 {Identifier}        { yylval.a=createASTNode("Identifier",0,yylineno);return Identifier;        }
 
 <<EOF>>             { return 0;                                                                 }
 
-.                   { lex_error("Unrecognized character", cur_line_num);                        }
+.                   { lex_error("Unrecognized content", cur_line_num);                        }
 
 %%
 

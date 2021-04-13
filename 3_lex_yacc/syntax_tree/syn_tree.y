@@ -1,6 +1,5 @@
 // ref:https://blog.csdn.net/xzz_hust/article/details/45009147 https://blog.csdn.net/qq_24421591/article/details/50045933
 %{
-#include<unistd.h>
 #include<stdio.h> 
 #include "syn_tree.h"
 %}
@@ -8,7 +7,7 @@
 struct AST* a;
 }
 
-%token <a> Le  Ge  Eq  Ne Def  And  Or  IntConstant Real  StringConstant  Identifier  Void  Int  WHILE  If  Else  Return Operator BEGIN_KEY END_KEY MAIN WRITE READ 
+%token <a> Le  Ge  Eq  Ne Def  And  Or  IntConstant RealConstant REAL  StringConstant  Identifier  Void  INT  WHILE  If  Else  Return Operator BEGIN_KEY END_KEY MAIN WRITE READ 
 %type  <a> Programs Program MethodDecl FormalParams FormalParam Block Statements Statement LocalVarDecl 
 Type AssignStmt  ReturnStmt IfStmt WriteStmt ReadStmt  BoolExpression Expression MultiplicativeExpr 
 PrimaryExpr ActualParams WhileStmt
@@ -65,8 +64,8 @@ WhileStmt : WHILE '(' BoolExpression ')' Statement{$$=createASTNode("WhileStmt",
     ;
 
 
-Type : Int{$$=createASTNode("Type",1,$1);}
-    | Real{$$=createASTNode("Type",1,$1);}
+Type : INT{$$=createASTNode("Type",1,$1);}
+    | REAL{$$=createASTNode("Type",1,$1);}
     | StringConstant{$$=createASTNode("Type",1,$1);}
     ;
 
@@ -106,7 +105,7 @@ MultiplicativeExpr : MultiplicativeExpr '*' PrimaryExpr{$$=createASTNode("Multip
     | PrimaryExpr{$$=createASTNode("MultiplicativeExpr",1,$1);}
     ;
 PrimaryExpr : IntConstant {$$=createASTNode("PrimaryExpr",1,$1);}
-    | Real {$$=createASTNode("PrimaryExpr",1,$1);}
+    | RealConstant {$$=createASTNode("PrimaryExpr",1,$1);}
     | Identifier {$$=createASTNode("PrimaryExpr",1,$1);}
     | '(' Expression ')' {$$=createASTNode("PrimaryExpr",1,$2);}
     | Identifier '(' ActualParams ')'{$$=createASTNode("PrimaryExpr",2,$1,$3);}

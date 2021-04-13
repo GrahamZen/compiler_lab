@@ -54,7 +54,7 @@ struct AST *createASTNode(char *name, int num, ...)
         }
         else if (!strcmp(root->name, "IntConstant"))
             root->intVal = atoi(yytext);
-        else if (!strcmp(root->name, "Real"))
+        else if (!strcmp(root->name, "RealConstant"))
             root->floatVal = atof(yytext);
     }
     return root;
@@ -75,7 +75,7 @@ void traverse(struct AST *root, int level)
             printf(":%s", root->idName);
         else if (!strcmp(root->name, "IntConstant"))
             printf(":%d", root->intVal);
-        else if (!strcmp(root->name, "Real"))
+        else if (!strcmp(root->name, "RealConstant"))
             printf(":%f", root->floatVal);
         else
             printf("(%d)", root->lineNo);

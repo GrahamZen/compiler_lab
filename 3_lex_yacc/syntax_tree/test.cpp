@@ -7,9 +7,9 @@
  END 
  INT MAIN f1() 
  BEGIN
-    INT x;
+    INT x:=-333.33;
     WHILE(x<3 && y>3) READ(x, "A41.input");
-    INT y;
+    REAL y:=2112;
     READ(y, "A42.input");
     INT z;
     z := f2(x,y) + f2(y,x);
