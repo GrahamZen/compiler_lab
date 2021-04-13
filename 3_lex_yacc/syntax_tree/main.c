@@ -6,6 +6,7 @@
 #else
     #include "syn_tree.h"
     #include "token.h"
+    extern int yylex (void);
     void lexical_analysis() {
         int token;
         while (token = yylex()) {

@@ -319,49 +319,50 @@ void lex_error(char* msg, int line);
 %}
 %option yylineno
 
-DIGIT               [+-]?([0-9]+)
-NUMBER              {DIGIT}.([0-9]+)
-STRING              (\042[^\042\n]*\042)
-OPERATOR            ([+*-/%=,;!<>(){}])
-SINGLE_COMMENT1     ("//"[^\n]*)
-SINGLE_COMMENT2     (\/\*\*.*?\*\*\/)
-Identifier          ([_a-zA-Z][_a-zA-Z0-9]*)
+POSITIVE          ([0-9]+)
+INT               [+-]?{POSITIVE}
+REAL              {INT}.{POSITIVE}
+STRING            (\042[^\042\n]*\042)
+OPERATOR          ([+*-/%=,;!<>(){}])
+SINGLE_COMMENT1   ("//"[^\n]*)
+SINGLE_COMMENT2   (\/\*\*.*?\*\*\/)
+Identifier        ([_a-zA-Z][_a-zA-Z0-9]*)
 
 %%
 
-[\n]                { cur_line_num++;                                                           }
-[ \t\r\a]+          { /* ignore all spaces */                                                   }
-{SINGLE_COMMENT1}   { /* skip for single line comment */                                        }
-{SINGLE_COMMENT2}   { /* skip for single line commnet */                                        }
+[\n]              { cur_line_num++;                                                           }
+[ \t\r\a]+        { /* ignore all spaces */                                                   }
+{SINGLE_COMMENT1} { /* skip for single line comment */                                        }
+{SINGLE_COMMENT2} { /* skip for single line commnet */                                        }
 
-{OPERATOR}          { yylval.a=createASTNode("OP",0,yylineno);return yytext[0];                 }   
+{OPERATOR}        { yylval.a=createASTNode("OP",0,yylineno);return yytext[0];                 }   
 
-"<="                { yylval.a=createASTNode("Le",0,yylineno);return Le;                        }
-">="                { yylval.a=createASTNode("Ge",0,yylineno);return Ge;                        }
-":="                { yylval.a=createASTNode("Def",0,yylineno);return Def;                      }
-"=="                { yylval.a=createASTNode("Eq",0,yylineno);return Eq;                        }
-"!="                { yylval.a=createASTNode("Ne",0,yylineno);return Ne;                        }
-"&&"                { yylval.a=createASTNode("And",0,yylineno);return And;                      }
-"||"                { yylval.a=createASTNode("Or",0,yylineno);return Or;                        }
-"INT"               { yylval.a=createASTNode("INT",0,yylineno);return INT;                      }
-"REAL"              { yylval.a=createASTNode("REAL",0,yylineno);return REAL;                    }
-"WHILE"             { yylval.a=createASTNode("WHILE",0,yylineno);return WHILE;                  }
-"IF"                { yylval.a=createASTNode("If",0,yylineno);return If;                        }
-"ELSE"              { yylval.a=createASTNode("Else",0,yylineno);return Else;                    }
-"RETURN"            { yylval.a=createASTNode("Return",0,yylineno);return Return;                }
-"WRITE"             { yylval.a=createASTNode("WRITE",0,yylineno);return WRITE;                  }
-"READ"              { yylval.a=createASTNode("READ",0,yylineno);return READ;                    }
-"BEGIN"             { yylval.a=createASTNode("BEGIN",0,yylineno);return BEGIN_KEY;              }
-"END"               { yylval.a=createASTNode("END",0,yylineno);return END_KEY;                  }
-"MAIN"              { yylval.a=createASTNode("END",0,yylineno);return MAIN;                     }
-{DIGIT}             { yylval.a=createASTNode("IntConstant",0,yylineno); return IntConstant;     }
-{NUMBER}            { yylval.a=createASTNode("RealConstant",0,yylineno);return RealConstant;    }
-{STRING}            { yylval.a=createASTNode("StringConstant",0,yylineno);return StringConstant;}
-{Identifier}        { yylval.a=createASTNode("Identifier",0,yylineno);return Identifier;        }
+"<="              { yylval.a=createASTNode("Le",0,yylineno);return Le;                        }
+">="              { yylval.a=createASTNode("Ge",0,yylineno);return Ge;                        }
+":="              { yylval.a=createASTNode("Def",0,yylineno);return Def;                      }
+"=="              { yylval.a=createASTNode("Eq",0,yylineno);return Eq;                        }
+"!="              { yylval.a=createASTNode("Ne",0,yylineno);return Ne;                        }
+"&&"              { yylval.a=createASTNode("And",0,yylineno);return And;                      }
+"||"              { yylval.a=createASTNode("Or",0,yylineno);return Or;                        }
+"INT"             { yylval.a=createASTNode("INT",0,yylineno);return INT;                      }
+"REAL"            { yylval.a=createASTNode("REAL",0,yylineno);return REAL;                    }
+"WHILE"           { yylval.a=createASTNode("WHILE",0,yylineno);return WHILE;                  }
+"IF"              { yylval.a=createASTNode("If",0,yylineno);return If;                        }
+"ELSE"            { yylval.a=createASTNode("Else",0,yylineno);return Else;                    }
+"RETURN"          { yylval.a=createASTNode("Return",0,yylineno);return Return;                }
+"WRITE"           { yylval.a=createASTNode("WRITE",0,yylineno);return WRITE;                  }
+"READ"            { yylval.a=createASTNode("READ",0,yylineno);return READ;                    }
+"BEGIN"           { yylval.a=createASTNode("BEGIN",0,yylineno);return BEGIN_KEY;              }
+"END"             { yylval.a=createASTNode("END",0,yylineno);return END_KEY;                  }
+"MAIN"            { yylval.a=createASTNode("MAIN",0,yylineno);return MAIN;                     }
+{INT}             { yylval.a=createASTNode("IntConstant",0,yylineno); return IntConstant;     }
+{REAL}            { yylval.a=createASTNode("RealConstant",0,yylineno);return RealConstant;    }
+{STRING}          { yylval.a=createASTNode("StringConstant",0,yylineno);return StringConstant;}
+{Identifier}      { yylval.a=createASTNode("Identifier",0,yylineno);return Identifier;        }
 
-<<EOF>>             { return 0;                                                                 }
+<<EOF>>           { return 0;                                                                 }
 
-.                   { lex_error("Unrecognized content", cur_line_num);                        }
+.                 { lex_error("Unrecognized content", cur_line_num);                          }
 
 %%
 
@@ -742,9 +743,7 @@ Programs (2)
 
 #### 词法错误处理
 
-使用下面的代码进行错误处理测试
-
-错误为：
+使用下面的代码进行错误处理测试，错误为：
 
 1. 第10行的\#3为非法串
 2. 第13行漏了引号
@@ -937,3 +936,53 @@ make syn_test > test.log
 make check
 ```
 
+查看valgrind-out.txt，其中有如下泄露：
+
+```
+==16662== HEAP SUMMARY:
+==16662==     in use at exit: 17,978 bytes in 41 blocks
+==16662==   total heap usage: 247 allocs, 210 frees, 31,258 bytes allocated
+==16662== 
+==16662== Searching for pointers to 41 not-freed blocks
+==16662== Checked 75,944 bytes
+==16662== 
+==16662== 8 bytes in 1 blocks are still reachable in loss record 1 of 4
+==16662==    at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==16662==    by 0x10CE82: yyalloc (in /mnt/d/OneDrive/workspace/c++/compiler/exp/3_lex_yacc/syntax_tree/main)
+==16662==    by 0x10C941: yyensure_buffer_stack (in /mnt/d/OneDrive/workspace/c++/compiler/exp/3_lex_yacc/syntax_tree/main)
+==16662==    by 0x10ACE4: yylex (in /mnt/d/OneDrive/workspace/c++/compiler/exp/3_lex_yacc/syntax_tree/main)
+==16662==    by 0x109769: yyparse (in /mnt/d/OneDrive/workspace/c++/compiler/exp/3_lex_yacc/syntax_tree/main)
+==16662==    by 0x10943F: main (in /mnt/d/OneDrive/workspace/c++/compiler/exp/3_lex_yacc/syntax_tree/main)
+==16662== 
+==16662== 64 bytes in 1 blocks are still reachable in loss record 2 of 4
+==16662==    at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==16662==    by 0x10CE82: yyalloc (in /mnt/d/OneDrive/workspace/c++/compiler/exp/3_lex_yacc/syntax_tree/main)
+==16662==    by 0x10C4B6: yy_create_buffer (in /mnt/d/OneDrive/workspace/c++/compiler/exp/3_lex_yacc/syntax_tree/main)
+==16662==    by 0x10AD0E: yylex (in /mnt/d/OneDrive/workspace/c++/compiler/exp/3_lex_yacc/syntax_tree/main)
+==16662==    by 0x109769: yyparse (in /mnt/d/OneDrive/workspace/c++/compiler/exp/3_lex_yacc/syntax_tree/main)
+==16662==    by 0x10943F: main (in /mnt/d/OneDrive/workspace/c++/compiler/exp/3_lex_yacc/syntax_tree/main)
+==16662== 
+==16662== 1,520 bytes in 38 blocks are definitely lost in loss record 3 of 4
+==16662==    at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==16662==    by 0x10CF83: createASTNode (in /mnt/d/OneDrive/workspace/c++/compiler/exp/3_lex_yacc/syntax_tree/main)
+==16662==    by 0x10AFAE: yylex (in /mnt/d/OneDrive/workspace/c++/compiler/exp/3_lex_yacc/syntax_tree/main)
+==16662==    by 0x109769: yyparse (in /mnt/d/OneDrive/workspace/c++/compiler/exp/3_lex_yacc/syntax_tree/main)
+==16662==    by 0x10943F: main (in /mnt/d/OneDrive/workspace/c++/compiler/exp/3_lex_yacc/syntax_tree/main)
+==16662== 
+==16662== 16,386 bytes in 1 blocks are still reachable in loss record 4 of 4
+==16662==    at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==16662==    by 0x10CE82: yyalloc (in /mnt/d/OneDrive/workspace/c++/compiler/exp/3_lex_yacc/syntax_tree/main)
+==16662==    by 0x10C4EB: yy_create_buffer (in /mnt/d/OneDrive/workspace/c++/compiler/exp/3_lex_yacc/syntax_tree/main)
+==16662==    by 0x10AD0E: yylex (in /mnt/d/OneDrive/workspace/c++/compiler/exp/3_lex_yacc/syntax_tree/main)
+==16662==    by 0x109769: yyparse (in /mnt/d/OneDrive/workspace/c++/compiler/exp/3_lex_yacc/syntax_tree/main)
+==16662==    by 0x10943F: main (in /mnt/d/OneDrive/workspace/c++/compiler/exp/3_lex_yacc/syntax_tree/main)
+==16662== 
+==16662== LEAK SUMMARY:
+==16662==    definitely lost: 1,520 bytes in 38 blocks
+==16662==    indirectly lost: 0 bytes in 0 blocks
+==16662==      possibly lost: 0 bytes in 0 blocks
+==16662==    still reachable: 16,458 bytes in 3 blocks
+==16662==         suppressed: 0 bytes in 0 blocks
+```
+
+可以看到泄露的内存由yyalloc分配，这部分的代码实际上来源于bison和flex生成的代码。

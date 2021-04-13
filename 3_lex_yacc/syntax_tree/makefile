@@ -33,5 +33,8 @@ check:$(TARGET)
 			--log-file=valgrind-out.txt \
 			./$(TARGET)<$(TESTFILE)
 
-clean:
-	rm valgrind-out.txt *.log *.tab.c *.yy.c *.tab.h $(LEXER) $(TARGET) 2> /dev/null || echo > /dev/null
+clean_temps:
+	rm valgrind-out.txt *.log *.tab.c *.yy.c *.tab.h  2> /dev/null || echo > /dev/null
+
+clean: clean_temps
+	rm $(LEXER) $(TARGET) 2> /dev/null || echo > /dev/null

@@ -42,14 +42,14 @@ Identifier          ([_a-zA-Z][_a-zA-Z0-9]*)
 "BEGIN"             { return BEGIN_KEY;                                                         }
 "END"               { return END_KEY;                                                           }
 "MAIN"              { return MAIN;                                                              }
-{DIGIT}             { return IntConstant;                                                       }
-{NUMBER}            { return RealConstant;                                                      }
+{INT}               { return IntConstant;                                                       }
+{REAL}              { return RealConstant;                                                      }
 {STRING}            { return StringConstant;                                                    }
 {Identifier}        { return Identifier;                                                        }
 
 <<EOF>>             { return 0;                                                                 }
 
-.                   { lex_error("Unrecognized content", cur_line_num);                        }
+.                   { lex_error("Unrecognized content", cur_line_num);                          }
 
 %%
 

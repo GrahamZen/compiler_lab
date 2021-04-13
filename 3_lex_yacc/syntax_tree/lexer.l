@@ -41,7 +41,7 @@ Identifier          ([_a-zA-Z][_a-zA-Z0-9]*)
 "READ"              { yylval.a=createASTNode("READ",0,yylineno);return READ;                    }
 "BEGIN"             { yylval.a=createASTNode("BEGIN",0,yylineno);return BEGIN_KEY;              }
 "END"               { yylval.a=createASTNode("END",0,yylineno);return END_KEY;                  }
-"MAIN"              { yylval.a=createASTNode("END",0,yylineno);return MAIN;                     }
+"MAIN"              { yylval.a=createASTNode("MAIN",0,yylineno);return MAIN;                     }
 {INT}             { yylval.a=createASTNode("IntConstant",0,yylineno); return IntConstant;     }
 {REAL}            { yylval.a=createASTNode("RealConstant",0,yylineno);return RealConstant;    }
 {STRING}            { yylval.a=createASTNode("StringConstant",0,yylineno);return StringConstant;}

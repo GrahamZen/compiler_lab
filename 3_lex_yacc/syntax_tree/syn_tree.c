@@ -90,8 +90,6 @@ void destroy(struct AST *root){
         destroy(root->leftNode);
     if(root->rightNode)
         destroy(root->rightNode);
-    if(root->idName)
-        printf("%s\n",root->idName);
     free(root);
 }
 
