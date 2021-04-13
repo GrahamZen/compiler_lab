@@ -34,4 +34,4 @@ check:$(TARGET)
 			./$(TARGET)<$(TESTFILE)
 
 clean:
-	rm *.log *.tab.c *.yy.c *.tab.h $(LEXER) $(TARGET) 2> /dev/null || echo > /dev/null
+	rm valgrind-out.txt *.log *.tab.c *.yy.c *.tab.h $(LEXER) $(TARGET) 2> /dev/null || echo > /dev/null
