@@ -22,5 +22,6 @@ struct AST
 
 struct AST *createASTNode(char* name,int num,...);
 void traverse(struct AST*,int level);
+void destroy(struct AST *root);
 
 #endif

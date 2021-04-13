@@ -2,6 +2,8 @@
 %{
 #include<stdio.h> 
 #include "syn_tree.h"
+extern int yyparse (void);
+extern int yylex (void);
 %}
 %union{
 struct AST* a;

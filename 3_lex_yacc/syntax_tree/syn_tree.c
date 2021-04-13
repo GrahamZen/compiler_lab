@@ -9,9 +9,13 @@ struct AST *createASTNode(char *name, int num, ...)
 {
     va_list valist;
     struct AST *root = (struct AST *)malloc(sizeof(struct AST));
-    root->idName=root->leftNode=root->rightNode=NULL;
+    root->idName=NULL;
+    root->leftNode=NULL;
+    root->rightNode=NULL;
     struct AST *child = (struct AST *)malloc(sizeof(struct AST));
-    child->idName=child->leftNode=child->rightNode=NULL;
+    child->idName=NULL;
+    child->leftNode=NULL;
+    child->rightNode=NULL;
     //examine if alloc failed
     if (!root || !child)
     {

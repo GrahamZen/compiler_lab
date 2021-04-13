@@ -1,5 +1,8 @@
 #ifndef LEX
+    #include <stdio.h>
     #include "syn_tree.tab.h"
+    extern int yyparse (void);
+    extern int yylex (void);
 #else
     #include "syn_tree.h"
     #include "token.h"
