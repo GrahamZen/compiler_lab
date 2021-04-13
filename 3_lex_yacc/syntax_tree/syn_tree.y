@@ -1,6 +1,4 @@
 // ref:https://blog.csdn.net/xzz_hust/article/details/45009147 https://blog.csdn.net/qq_24421591/article/details/50045933
-%require "3.2"
-%language "c++"
 %{
 #include<unistd.h>
 #include<stdio.h> 
