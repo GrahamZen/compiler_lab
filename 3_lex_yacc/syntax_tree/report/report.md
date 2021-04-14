@@ -319,50 +319,50 @@ void lex_error(char* msg, int line);
 %}
 %option yylineno
 
-POSITIVE          ([0-9]+)
-INT               [+-]?{POSITIVE}
-REAL              {INT}.{POSITIVE}
-STRING            (\042[^\042\n]*\042)
-OPERATOR          ([+*-/%=,;!<>(){}])
-SINGLE_COMMENT1   ("//"[^\n]*)
-SINGLE_COMMENT2   (\/\*\*.*?\*\*\/)
-Identifier        ([_a-zA-Z][_a-zA-Z0-9]*)
+POSITIVE            ([0-9]+)
+INT                 [+-]?{POSITIVE}
+REAL                {INT}.{POSITIVE}
+STRING              (\042[^\042\n]*\042)
+OPERATOR            ([+*-/%=,;!<>(){}])
+SINGLE_COMMENT1     ("//"[^\n]*)
+SINGLE_COMMENT2     (\/\*(?:[^\*]|\*+[^\/\*])*\*+\/)
+Identifier          ([_a-zA-Z][_a-zA-Z0-9]*)
 
 %%
 
-[\n]              { cur_line_num++;                                                           }
-[ \t\r\a]+        { /* ignore all spaces */                                                   }
-{SINGLE_COMMENT1} { /* skip for single line comment */                                        }
-{SINGLE_COMMENT2} { /* skip for single line commnet */                                        }
+[\n]                { cur_line_num++;                                                           }
+[ \t\r\a]+          { /* ignore all spaces */                                                   }
+{SINGLE_COMMENT1}   { /* skip for single line comment */                                        }
+{SINGLE_COMMENT2}   { /* skip for single line commnet */                                        }
 
-{OPERATOR}        { yylval.a=createASTNode("OP",0,yylineno);return yytext[0];                 }   
+{OPERATOR}          { yylval.a=createASTNode("OP",0,yylineno);return yytext[0];                 }   
 
-"<="              { yylval.a=createASTNode("Le",0,yylineno);return Le;                        }
-">="              { yylval.a=createASTNode("Ge",0,yylineno);return Ge;                        }
-":="              { yylval.a=createASTNode("Def",0,yylineno);return Def;                      }
-"=="              { yylval.a=createASTNode("Eq",0,yylineno);return Eq;                        }
-"!="              { yylval.a=createASTNode("Ne",0,yylineno);return Ne;                        }
-"&&"              { yylval.a=createASTNode("And",0,yylineno);return And;                      }
-"||"              { yylval.a=createASTNode("Or",0,yylineno);return Or;                        }
-"INT"             { yylval.a=createASTNode("INT",0,yylineno);return INT;                      }
-"REAL"            { yylval.a=createASTNode("REAL",0,yylineno);return REAL;                    }
-"WHILE"           { yylval.a=createASTNode("WHILE",0,yylineno);return WHILE;                  }
-"IF"              { yylval.a=createASTNode("If",0,yylineno);return If;                        }
-"ELSE"            { yylval.a=createASTNode("Else",0,yylineno);return Else;                    }
-"RETURN"          { yylval.a=createASTNode("Return",0,yylineno);return Return;                }
-"WRITE"           { yylval.a=createASTNode("WRITE",0,yylineno);return WRITE;                  }
-"READ"            { yylval.a=createASTNode("READ",0,yylineno);return READ;                    }
-"BEGIN"           { yylval.a=createASTNode("BEGIN",0,yylineno);return BEGIN_KEY;              }
-"END"             { yylval.a=createASTNode("END",0,yylineno);return END_KEY;                  }
-"MAIN"            { yylval.a=createASTNode("MAIN",0,yylineno);return MAIN;                     }
-{INT}             { yylval.a=createASTNode("IntConstant",0,yylineno); return IntConstant;     }
-{REAL}            { yylval.a=createASTNode("RealConstant",0,yylineno);return RealConstant;    }
-{STRING}          { yylval.a=createASTNode("StringConstant",0,yylineno);return StringConstant;}
-{Identifier}      { yylval.a=createASTNode("Identifier",0,yylineno);return Identifier;        }
+"<="                { yylval.a=createASTNode("Le",0,yylineno);return Le;                        }
+">="                { yylval.a=createASTNode("Ge",0,yylineno);return Ge;                        }
+":="                { yylval.a=createASTNode("Def",0,yylineno);return Def;                      }
+"=="                { yylval.a=createASTNode("Eq",0,yylineno);return Eq;                        }
+"!="                { yylval.a=createASTNode("Ne",0,yylineno);return Ne;                        }
+"&&"                { yylval.a=createASTNode("And",0,yylineno);return And;                      }
+"||"                { yylval.a=createASTNode("Or",0,yylineno);return Or;                        }
+"INT"               { yylval.a=createASTNode("INT",0,yylineno);return INT;                      }
+"REAL"              { yylval.a=createASTNode("REAL",0,yylineno);return REAL;                    }
+"WHILE"             { yylval.a=createASTNode("WHILE",0,yylineno);return WHILE;                  }
+"IF"                { yylval.a=createASTNode("If",0,yylineno);return If;                        }
+"ELSE"              { yylval.a=createASTNode("Else",0,yylineno);return Else;                    }
+"RETURN"            { yylval.a=createASTNode("Return",0,yylineno);return Return;                }
+"WRITE"             { yylval.a=createASTNode("WRITE",0,yylineno);return WRITE;                  }
+"READ"              { yylval.a=createASTNode("READ",0,yylineno);return READ;                    }
+"BEGIN"             { yylval.a=createASTNode("BEGIN",0,yylineno);return BEGIN_KEY;              }
+"END"               { yylval.a=createASTNode("END",0,yylineno);return END_KEY;                  }
+"MAIN"              { yylval.a=createASTNode("MAIN",0,yylineno);return MAIN;                    }
+{INT}               { yylval.a=createASTNode("IntConstant",0,yylineno); return IntConstant;     }
+{REAL}              { yylval.a=createASTNode("RealConstant",0,yylineno);return RealConstant;    }
+{STRING}            { yylval.a=createASTNode("StringConstant",0,yylineno);return StringConstant;}
+{Identifier}        { yylval.a=createASTNode("Identifier",0,yylineno);return Identifier;        }
 
-<<EOF>>           { return 0;                                                                 }
+<<EOF>>             { return 0;                                                                 }
 
-.                 { lex_error("Unrecognized content", cur_line_num);                          }
+.                   { lex_error("Unrecognized content", cur_line_num);                          }
 
 %%
 
@@ -562,180 +562,185 @@ test.log中的结果如下：
 
 
 ```
-bison -d  syn_tree.y
 flex lexer.l 
 gcc     main.c syn_tree.tab.c lex.yy.c syn_tree.c   -o main
 ./main < test.cpp
 >Syntax tree :
 Programs (2)
-	Program (2)
-		MethodDecl (2)
-			Type (2)
-				INT (2)
-			Identifier :f2 
-			FormalParams (2)
-				FormalParams (2)
-					FormalParam (2)
-						Type (2)
-							INT (2)
-						Identifier :x 
-				FormalParam (2)
-					Type (2)
-						INT (2)
-					Identifier :y 
-			Block (3)
-				BEGIN (3)
-				Statements (4)
-					Statements (4)
-						Statements (4)
-							Statement (4)
-								LocalVarDecl (4)
-									Type (4)
-										INT (4)
-									Identifier :z 
-						Statement (5)
-							AssignStmt (5)
-								Identifier :z 
-								Def (5)
-								Expression (5)
-									Expression (5)
-										MultiplicativeExpr (5)
-											MultiplicativeExpr (5)
-												PrimaryExpr (5)
-													Identifier :x 
-											Operator(*) (5)
-											PrimaryExpr (5)
-												Identifier :x 
-									Operator(-) (5)
-									MultiplicativeExpr (5)
-										MultiplicativeExpr (5)
-											PrimaryExpr (5)
-												Identifier :y 
-										Operator(*) (5)
-										PrimaryExpr (5)
-											Identifier :y 
-					Statement (6)
-						ReturnStmt (6)
-							Return (6)
-							Expression (6)
-								MultiplicativeExpr (6)
-									PrimaryExpr (6)
-										Identifier :z 
-				END (7)
-		Program (8)
-			MethodDecl (8)
-				Type (8)
-					INT (8)
-				END (8)
-				Identifier :f1 
-				
-				Block (9)
-					BEGIN (9)
-					Statements (10)
-						Statements (10)
-							Statements (10)
-								Statements (10)
-									Statements (10)
-										Statements (10)
-											Statements (10)
-												Statement (10)
-													LocalVarDecl (10)
-														Type (10)
-															INT (10)
-														Identifier :x 
-											Statement (11)
-												WhileStmt (11)
-													WHILE (11)
-													BoolExpression (11)
-														BoolExpression (11)
-															Expression (11)
-																MultiplicativeExpr (11)
-																	PrimaryExpr (11)
-																		Identifier :x 
-															Operator(<) (11)
-															Expression (11)
-																MultiplicativeExpr (11)
-																	PrimaryExpr (11)
-																		IntConstant :3
-														And (11)
-														BoolExpression (11)
-															Expression (11)
-																MultiplicativeExpr (11)
-																	PrimaryExpr (11)
-																		Identifier :y 
-															Operator(>) (11)
-															Expression (11)
-																MultiplicativeExpr (11)
-																	PrimaryExpr (11)
-																		IntConstant :3
-													Statement (11)
-														ReadStmt (11)
-															READ (11)
-															Identifier :x 
-															StringConstant :"A41.input"
-										Statement (12)
-											LocalVarDecl (12)
-												Type (12)
-													REAL (12)
-												AssignStmt (12)
-													Identifier :y 
-													Def (12)
-													Expression (12)
-														MultiplicativeExpr (12)
-															PrimaryExpr (12)
-																RealConstant :-2112.000000
-									Statement (13)
-										ReadStmt (13)
-											READ (13)
-											Identifier :y 
-											StringConstant :"A42.input"
-								Statement (14)
-									LocalVarDecl (14)
-										Type (14)
-											INT (14)
-										Identifier :z 
-							Statement (15)
-								AssignStmt (15)
-									Identifier :z 
-									Def (15)
-									Expression (15)
-										Expression (15)
-											MultiplicativeExpr (15)
-												PrimaryExpr (15)
-													Identifier :f2 
-													ActualParams (15)
-														ActualParams (15)
-															Expression (15)
-																MultiplicativeExpr (15)
-																	PrimaryExpr (15)
-																		Identifier :x 
-														Expression (15)
-															MultiplicativeExpr (15)
-																PrimaryExpr (15)
-																	Identifier :y 
-										Operator(+) (15)
-										MultiplicativeExpr (15)
-											PrimaryExpr (15)
-												Identifier :f2 
-												ActualParams (15)
-													ActualParams (15)
-														Expression (15)
-															MultiplicativeExpr (15)
-																PrimaryExpr (15)
-																	Identifier :y 
-													Expression (15)
-														MultiplicativeExpr (15)
-															PrimaryExpr (15)
-																Identifier :x 
-						Statement (16)
-							WriteStmt (16)
-								WRITE (16)
-								Expression (16)
-									MultiplicativeExpr (16)
-										PrimaryExpr (16)
-											Identifier :z 
-								StringConstant :"A4.output"
-					END (17)
+  Program (2)
+    MethodDecl (2)
+      Type (2)
+        INT (2)
+      Identifier :f2 
+      FormalParams (2)
+        FormalParams (2)
+          FormalParam (2)
+            Type (2)
+              INT (2)
+            Identifier :x 
+        FormalParam (2)
+          Type (2)
+            INT (2)
+          Identifier :y 
+      Block (3)
+        BEGIN (3)
+        Statements (4)
+          Statements (4)
+            Statements (4)
+              Statement (4)
+                LocalVarDecl (4)
+                  Type (4)
+                    INT (4)
+                  Identifier :z 
+            Statement (5)
+              AssignStmt (5)
+                Identifier :z 
+                Def (5)
+                Expression (5)
+                  Expression (5)
+                    MultiplicativeExpr (5)
+                      MultiplicativeExpr (5)
+                        PrimaryExpr (5)
+                          Identifier :x 
+                      Operator(*) (5)
+                      PrimaryExpr (5)
+                        Identifier :x 
+                  Operator(-) (5)
+                  MultiplicativeExpr (5)
+                    MultiplicativeExpr (5)
+                      PrimaryExpr (5)
+                        Identifier :y 
+                    Operator(*) (5)
+                    PrimaryExpr (5)
+                      Identifier :y 
+          Statement (6)
+            ReturnStmt (6)
+              Return (6)
+              Expression (6)
+                MultiplicativeExpr (6)
+                  PrimaryExpr (6)
+                    Identifier :z 
+        END (7)
+    Program (8)
+      MethodDecl (8)
+        Type (8)
+          INT (8)
+        MAIN (8)
+        Identifier :f1 
+        
+        Block (9)
+          BEGIN (9)
+          Statements (10)
+            Statements (10)
+              Statements (10)
+                Statements (10)
+                  Statements (10)
+                    Statements (10)
+                      Statements (10)
+                        Statement (10)
+                          LocalVarDecl (10)
+                            Type (10)
+                              INT (10)
+                            AssignStmt (10)
+                              Identifier :x 
+                              Def (10)
+                              Expression (10)
+                                MultiplicativeExpr (10)
+                                  PrimaryExpr (10)
+                                    RealConstant :-333.329987
+                      Statement (11)
+                        WhileStmt (11)
+                          WHILE (11)
+                          BoolExpression (11)
+                            BoolExpression (11)
+                              Expression (11)
+                                MultiplicativeExpr (11)
+                                  PrimaryExpr (11)
+                                    Identifier :x 
+                              Operator(<) (11)
+                              Expression (11)
+                                MultiplicativeExpr (11)
+                                  PrimaryExpr (11)
+                                    IntConstant :3
+                            And (11)
+                            BoolExpression (11)
+                              Expression (11)
+                                MultiplicativeExpr (11)
+                                  PrimaryExpr (11)
+                                    Identifier :y 
+                              Operator(>) (11)
+                              Expression (11)
+                                MultiplicativeExpr (11)
+                                  PrimaryExpr (11)
+                                    IntConstant :3
+                          Statement (11)
+                            ReadStmt (11)
+                              READ (11)
+                              Identifier :x 
+                              StringConstant :"A41.input"
+                    Statement (12)
+                      LocalVarDecl (12)
+                        Type (12)
+                          REAL (12)
+                        AssignStmt (12)
+                          Identifier :y 
+                          Def (12)
+                          Expression (12)
+                            MultiplicativeExpr (12)
+                              PrimaryExpr (12)
+                                IntConstant :2112
+                  Statement (13)
+                    ReadStmt (13)
+                      READ (13)
+                      Identifier :y 
+                      StringConstant :"A42.input"
+                Statement (14)
+                  LocalVarDecl (14)
+                    Type (14)
+                      INT (14)
+                    Identifier :z 
+              Statement (15)
+                AssignStmt (15)
+                  Identifier :z 
+                  Def (15)
+                  Expression (15)
+                    Expression (15)
+                      MultiplicativeExpr (15)
+                        PrimaryExpr (15)
+                          Identifier :f2 
+                          ActualParams (15)
+                            ActualParams (15)
+                              Expression (15)
+                                MultiplicativeExpr (15)
+                                  PrimaryExpr (15)
+                                    Identifier :x 
+                            Expression (15)
+                              MultiplicativeExpr (15)
+                                PrimaryExpr (15)
+                                  Identifier :y 
+                    Operator(+) (15)
+                    MultiplicativeExpr (15)
+                      PrimaryExpr (15)
+                        Identifier :f2 
+                        ActualParams (15)
+                          ActualParams (15)
+                            Expression (15)
+                              MultiplicativeExpr (15)
+                                PrimaryExpr (15)
+                                  Identifier :y 
+                          Expression (15)
+                            MultiplicativeExpr (15)
+                              PrimaryExpr (15)
+                                Identifier :x 
+            Statement (16)
+              WriteStmt (16)
+                WRITE (16)
+                Expression (16)
+                  MultiplicativeExpr (16)
+                    PrimaryExpr (16)
+                      Identifier :z 
+                StringConstant :"A4.output"
+          END (17)
 
 ```
 
