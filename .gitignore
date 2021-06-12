@@ -1,5 +1,5 @@
 *.exe
 3_lex_yacc/test
 3_lex_yacc/gramtree
-3_lex_yacc/.vscode/launch.json
-3_lex_yacc/.vscode/tasks.json
+3_lex_yacc/.vscode
+4_intcode/.vscode
