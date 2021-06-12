@@ -6,9 +6,13 @@ extern int yyparse (void);
 extern int yylex (void);
 extern int yylineno;
 extern void yyerror(char *s);
+extern translator global_tab;
+extern std::string tmpIdName;
+extern std::map<string,int>type2size;
+
 %}
 %union{
-struct AST* a;
+struct node* a;
 }
 
 %token <a> Le  Ge  Eq  Ne Def  And  Or  IntConstant RealConstant REAL  StringConstant  Identifier  Void  INT  WHILE  If  Else  Return Operator BEGIN_KEY END_KEY MAIN WRITE READ 
@@ -22,14 +26,32 @@ PrimaryExpr ActualParams WhileStmt
 
 %%
 Programs :
-    Program{}
+    M Program{global_tab.tblSt.top()->addwidth(global_tab.offsetSt.top());global_tab.tblSt.pop();global_tab.offsetSt.pop();cout<<global_tab.t.get();}
+    ;
+M: /* empty */{global_tab.tblSt.push(global_tab.t);global_tab.offsetSt.push(0);}
     ;
 Program : MethodDecl {}
     |MethodDecl Program {}
     ;
 
-MethodDecl : Type Identifier '(' FormalParams ')' Block{}
-    | Type MAIN Identifier '(' FormalParams ')' Block{}
+MethodDecl :N Type Identifier '(' FormalParams ')' Block{
+        auto tmp=global_tab.tblSt.top();
+        tmp->addwidth(global_tab.offsetSt.top());
+        global_tab.tblSt.pop();
+        global_tab.offsetSt.pop();
+        global_tab.tblSt.top()->enterproc($3->idName,tmp);
+    }
+    |N Type MAIN Identifier '(' FormalParams ')' Block{
+        auto tmp=global_tab.tblSt.top();
+        tmp->addwidth(global_tab.offsetSt.top());
+        global_tab.tblSt.pop();
+        global_tab.offsetSt.pop();
+        global_tab.tblSt.top()->enterproc($4->idName+"<"+"MAIN"+">",tmp);
+    }
+    ;
+N: /* empty */{auto t=mktable(global_tab.tblSt.top());
+                global_tab.tblSt.push(t);
+                global_tab.offsetSt.push(0);}
     ;
 FormalParams : FormalParams  ',' FormalParam{}
     | FormalParam{}
@@ -59,8 +81,10 @@ Statement : Block{}
 
 
 
-LocalVarDecl : Type Identifier ';' {}
-    | Type AssignStmt  {}
+LocalVarDecl : Type Identifier ';' {global_tab.tblSt.top()->enter($2->idName,$1->name,global_tab.offsetSt.top());
+                                    global_tab.addwidth(type2size[$1->name]);}
+    | Type AssignStmt  {global_tab.tblSt.top()->enter(tmpIdName,$1->name,global_tab.offsetSt.top());
+                        global_tab.addwidth(type2size[$1->name]);}
     | Type error ';' { yyerror("Maybe missing Identifier? \n"); }
     ;
 
@@ -73,8 +97,8 @@ Type : INT{}
     | StringConstant{}
     ;
 
-AssignStmt  : Identifier Def Expression ';'{}
-    |  Identifier Def StringConstant ';'{}
+AssignStmt  : Identifier Def Expression ';'{tmpIdName=$1->idName;}
+    |  Identifier Def StringConstant ';'{tmpIdName=$1->idName;}
     | error ';' { yyerror("Maybe missing ';'? \n"); }
     ;
 ReturnStmt : Return Expression ';'{}

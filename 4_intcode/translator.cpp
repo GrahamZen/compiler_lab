@@ -1,5 +1,11 @@
 #include "translator.h"
-
+#include <algorithm>
+translator global_tab;
+string tmpIdName;
+map<string,int>type2size={
+    {"INT",4},
+    {"REAL",4}
+};
 string getTokenStr(int token)
 {
 
@@ -13,16 +19,47 @@ void yyerror(char *s) {
     fprintf(stderr, "line %d: %s\n", yylineno, s);
 }
 
-symbol_table::symbol_table(shared_ptr<symbol_table> t) : prev(t) {}
-void symbol_table::enter(const char *lexeme, yytokentype type, int offset)
+node* createNode(char *name, int lineno)
 {
-    // enter(top(tblptr),id.lexeme,T.type,top(offset));
-    _table.push_back(entry{string(lexeme), type, false, offset, nullptr});
+    auto root = new node();
+    root->lineNo=lineno;
+    root->name=name;
+    /* 3 case of terminal:
+    *   string
+    *   int
+    *   float
+    */
+    if (root->name=="Identifier" || root->name=="StringConstant")
+    {
+        root->idName = string(yytext);
+    }
+    else if (root->name=="IntConstant")
+        root->intVal = atoi(yytext);
+    else if (root->name=="RealConstant")
+        root->floatVal = atof(yytext);
+    return root;
 }
-void symbol_table::enterproc(const char *lexeme, shared_ptr<symbol_table> fptr)
+
+
+symbol_table::symbol_table(shared_ptr<symbol_table> t) : prev(t) {}
+bool symbol_table::enter(string lexeme, string type, int offset)
 {
+    if(_table.find(lexeme)!=_table.end()){
+        yyerror("duplicated variable definition\n");
+        return false;
+    }
     // enter(top(tblptr),id.lexeme,T.type,top(offset));
-    _table.push_back(entry{string(lexeme), Identifier, true, 0, fptr});
+    _table[lexeme]=entry{lexeme, type, false, offset, nullptr};
+    return true;
+}
+bool symbol_table::enterproc(string lexeme, shared_ptr<symbol_table> fptr)
+{
+    if(_table.find(lexeme)!=_table.end()){
+        yyerror("duplicated function definition\n");
+        return false;
+    }
+    _table[lexeme]=entry{lexeme, "Identifier", true, 0, fptr};
+    return true;
 }
 void symbol_table::addwidth(int width)
 {
@@ -31,7 +68,7 @@ void symbol_table::addwidth(int width)
 int symbol_table::size()const{
     return _size;
 }
-const vector<symbol_table::entry>&symbol_table::table()const{
+const map<string,symbol_table::entry>&symbol_table::table()const{
     return _table;
 }
 
@@ -42,19 +79,22 @@ ostream &operator<<(ostream &os, symbol_table *t)
     symTabq.push(make_pair(shared_ptr<symbol_table>(t),"main"));
     while(!symTabq.empty()){
         auto p=symTabq.front();
-        auto table=p.first;
+        auto table=p.first->table();
         symTabq.pop();
         os << "----------------------------------" <<endl
-        << "<table>"<<left<<setw(13)<<p.second<<"|" << table->size() << endl
+        << "<table>"<<left<<setw(13)<<p.second<<"|" << p.first->size() << endl
          << "----------------------------------" <<endl;
-        for (const auto &ent : table->table())
+        auto vec=vector<pair<string, symbol_table::entry>>(table.begin(),table.end());
+        sort(vec.begin(),vec.end(),[](pair<const std::string, symbol_table::entry>p1,pair<const std::string, symbol_table::entry>p2){return p1.second.addr<p2.second.addr;});
+        for (const auto &ent : vec)
         {
-            if (ent.isFunc){
-                symTabq.push(make_pair(ent.fptr,ent.identifier));
-                os <<left << setw(20) << ent.identifier <<'|'<<left<<setw(8)<<"FUNC"<<'|' << endl;
+            auto record=ent.second;
+            if (record.isFunc){
+                symTabq.push(make_pair(record.fptr,record.identifier));
+                os <<left << setw(20) << record.identifier <<'|'<<left<<setw(8)<<"FUNC"<<'|' << endl;
             }
             else
-                os <<left << setw(20) << ent.identifier<<'|'<<left<<setw(8)<<getTokenStr(ent.t) <<'|'<< ent.addr << endl;
+                os <<left << setw(20) << record.identifier<<'|'<<left<<setw(8)<<record._type <<'|'<< record.addr << endl;
         }
         os << "----------------------------------" << endl<<endl;
     }

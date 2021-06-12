@@ -79,7 +79,7 @@ extern std::string tmpIdName;
 extern std::map<string,int>type2size;
 
 
-#line 83 "y.tab.c"
+#line 83 "syn_tree.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -110,7 +110,10 @@ extern std::map<string,int>type2size;
 # define YYERROR_VERBOSE 0
 #endif
 
-
+/* Use api.header.include to #include this header
+   instead of duplicating it here.  */
+#ifndef YY_YY_SYN_TREE_TAB_H_INCLUDED
+# define YY_YY_SYN_TREE_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -150,31 +153,6 @@ extern int yydebug;
     READ = 281
   };
 #endif
-/* Tokens.  */
-#define Le 258
-#define Ge 259
-#define Eq 260
-#define Ne 261
-#define Def 262
-#define And 263
-#define Or 264
-#define IntConstant 265
-#define RealConstant 266
-#define REAL 267
-#define StringConstant 268
-#define Identifier 269
-#define Void 270
-#define INT 271
-#define WHILE 272
-#define If 273
-#define Else 274
-#define Return 275
-#define Operator 276
-#define BEGIN_KEY 277
-#define END_KEY 278
-#define MAIN 279
-#define WRITE 280
-#define READ 281
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -184,7 +162,7 @@ union YYSTYPE
 
 struct node* a;
 
-#line 188 "y.tab.c"
+#line 166 "syn_tree.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -197,7 +175,7 @@ extern YYSTYPE yylval;
 
 int yyparse (void);
 
-
+#endif /* !YY_YY_SYN_TREE_TAB_H_INCLUDED  */
 
 
 
@@ -1446,25 +1424,25 @@ yyreduce:
   case 2:
 #line 29 "syn_tree.y"
              {global_tab.tblSt.top()->addwidth(global_tab.offsetSt.top());global_tab.tblSt.pop();global_tab.offsetSt.pop();cout<<global_tab.t.get();}
-#line 1450 "y.tab.c"
+#line 1428 "syn_tree.tab.c"
     break;
 
   case 3:
 #line 31 "syn_tree.y"
               {global_tab.tblSt.push(global_tab.t);global_tab.offsetSt.push(0);}
-#line 1456 "y.tab.c"
+#line 1434 "syn_tree.tab.c"
     break;
 
   case 4:
 #line 33 "syn_tree.y"
                      {}
-#line 1462 "y.tab.c"
+#line 1440 "syn_tree.tab.c"
     break;
 
   case 5:
 #line 34 "syn_tree.y"
                         {}
-#line 1468 "y.tab.c"
+#line 1446 "syn_tree.tab.c"
     break;
 
   case 6:
@@ -1476,7 +1454,7 @@ yyreduce:
         global_tab.offsetSt.pop();
         global_tab.tblSt.top()->enterproc((yyvsp[-4].a)->idName,tmp);
     }
-#line 1480 "y.tab.c"
+#line 1458 "syn_tree.tab.c"
     break;
 
   case 7:
@@ -1488,7 +1466,7 @@ yyreduce:
         global_tab.offsetSt.pop();
         global_tab.tblSt.top()->enterproc((yyvsp[-4].a)->idName+"<"+"MAIN"+">",tmp);
     }
-#line 1492 "y.tab.c"
+#line 1470 "syn_tree.tab.c"
     break;
 
   case 8:
@@ -1496,343 +1474,343 @@ yyreduce:
               {auto t=mktable(global_tab.tblSt.top());
                 global_tab.tblSt.push(t);
                 global_tab.offsetSt.push(0);}
-#line 1500 "y.tab.c"
+#line 1478 "syn_tree.tab.c"
     break;
 
   case 9:
 #line 56 "syn_tree.y"
                                             {}
-#line 1506 "y.tab.c"
+#line 1484 "syn_tree.tab.c"
     break;
 
   case 10:
 #line 57 "syn_tree.y"
                  {}
-#line 1512 "y.tab.c"
+#line 1490 "syn_tree.tab.c"
     break;
 
   case 11:
 #line 58 "syn_tree.y"
                  {}
-#line 1518 "y.tab.c"
+#line 1496 "syn_tree.tab.c"
     break;
 
   case 12:
 #line 60 "syn_tree.y"
                              {}
-#line 1524 "y.tab.c"
+#line 1502 "syn_tree.tab.c"
     break;
 
   case 13:
 #line 64 "syn_tree.y"
                                      {}
-#line 1530 "y.tab.c"
+#line 1508 "syn_tree.tab.c"
     break;
 
   case 14:
 #line 65 "syn_tree.y"
              { yyerror("keyword typo? \n"); }
-#line 1536 "y.tab.c"
+#line 1514 "syn_tree.tab.c"
     break;
 
   case 15:
 #line 68 "syn_tree.y"
                                 {}
-#line 1542 "y.tab.c"
+#line 1520 "syn_tree.tab.c"
     break;
 
   case 16:
 #line 69 "syn_tree.y"
                {}
-#line 1548 "y.tab.c"
+#line 1526 "syn_tree.tab.c"
     break;
 
   case 17:
 #line 72 "syn_tree.y"
                  {}
-#line 1554 "y.tab.c"
+#line 1532 "syn_tree.tab.c"
     break;
 
   case 18:
 #line 73 "syn_tree.y"
                   {}
-#line 1560 "y.tab.c"
+#line 1538 "syn_tree.tab.c"
     break;
 
   case 19:
 #line 74 "syn_tree.y"
                 {}
-#line 1566 "y.tab.c"
+#line 1544 "syn_tree.tab.c"
     break;
 
   case 20:
 #line 75 "syn_tree.y"
                 {}
-#line 1572 "y.tab.c"
+#line 1550 "syn_tree.tab.c"
     break;
 
   case 21:
 #line 76 "syn_tree.y"
             {}
-#line 1578 "y.tab.c"
+#line 1556 "syn_tree.tab.c"
     break;
 
   case 22:
 #line 77 "syn_tree.y"
                {}
-#line 1584 "y.tab.c"
+#line 1562 "syn_tree.tab.c"
     break;
 
   case 23:
 #line 78 "syn_tree.y"
               {}
-#line 1590 "y.tab.c"
+#line 1568 "syn_tree.tab.c"
     break;
 
   case 24:
 #line 79 "syn_tree.y"
                {}
-#line 1596 "y.tab.c"
+#line 1574 "syn_tree.tab.c"
     break;
 
   case 25:
 #line 84 "syn_tree.y"
                                    {global_tab.tblSt.top()->enter((yyvsp[-1].a)->idName,(yyvsp[-2].a)->name,global_tab.offsetSt.top());
                                     global_tab.addwidth(type2size[(yyvsp[-2].a)->name]);}
-#line 1603 "y.tab.c"
+#line 1581 "syn_tree.tab.c"
     break;
 
   case 26:
 #line 86 "syn_tree.y"
                        {global_tab.tblSt.top()->enter(tmpIdName,(yyvsp[-1].a)->name,global_tab.offsetSt.top());
                         global_tab.addwidth(type2size[(yyvsp[-1].a)->name]);}
-#line 1610 "y.tab.c"
+#line 1588 "syn_tree.tab.c"
     break;
 
   case 27:
 #line 88 "syn_tree.y"
                      { yyerror("Maybe missing Identifier? \n"); }
-#line 1616 "y.tab.c"
+#line 1594 "syn_tree.tab.c"
     break;
 
   case 28:
 #line 91 "syn_tree.y"
                                                   {}
-#line 1622 "y.tab.c"
+#line 1600 "syn_tree.tab.c"
     break;
 
   case 29:
 #line 95 "syn_tree.y"
           {}
-#line 1628 "y.tab.c"
+#line 1606 "syn_tree.tab.c"
     break;
 
   case 30:
 #line 96 "syn_tree.y"
           {}
-#line 1634 "y.tab.c"
+#line 1612 "syn_tree.tab.c"
     break;
 
   case 31:
 #line 97 "syn_tree.y"
                     {}
-#line 1640 "y.tab.c"
+#line 1618 "syn_tree.tab.c"
     break;
 
   case 32:
 #line 100 "syn_tree.y"
                                            {tmpIdName=(yyvsp[-3].a)->idName;}
-#line 1646 "y.tab.c"
+#line 1624 "syn_tree.tab.c"
     break;
 
   case 33:
 #line 101 "syn_tree.y"
                                         {tmpIdName=(yyvsp[-3].a)->idName;}
-#line 1652 "y.tab.c"
+#line 1630 "syn_tree.tab.c"
     break;
 
   case 34:
 #line 102 "syn_tree.y"
                 { yyerror("Maybe missing ';'? \n"); }
-#line 1658 "y.tab.c"
+#line 1636 "syn_tree.tab.c"
     break;
 
   case 35:
 #line 104 "syn_tree.y"
                                   {}
-#line 1664 "y.tab.c"
+#line 1642 "syn_tree.tab.c"
     break;
 
   case 36:
 #line 106 "syn_tree.y"
                                             {}
-#line 1670 "y.tab.c"
+#line 1648 "syn_tree.tab.c"
     break;
 
   case 37:
 #line 107 "syn_tree.y"
                                                         {}
-#line 1676 "y.tab.c"
+#line 1654 "syn_tree.tab.c"
     break;
 
   case 38:
 #line 109 "syn_tree.y"
                                                            {}
-#line 1682 "y.tab.c"
+#line 1660 "syn_tree.tab.c"
     break;
 
   case 39:
 #line 110 "syn_tree.y"
                       { yyerror("Maybe missing Identifier or StringConstant? \n"); }
-#line 1688 "y.tab.c"
+#line 1666 "syn_tree.tab.c"
     break;
 
   case 40:
 #line 112 "syn_tree.y"
                                                           {}
-#line 1694 "y.tab.c"
+#line 1672 "syn_tree.tab.c"
     break;
 
   case 41:
 #line 113 "syn_tree.y"
                      { yyerror("Maybe missing Identifier or StringConstant? \n"); }
-#line 1700 "y.tab.c"
+#line 1678 "syn_tree.tab.c"
     break;
 
   case 42:
 #line 116 "syn_tree.y"
                                           {}
-#line 1706 "y.tab.c"
+#line 1684 "syn_tree.tab.c"
     break;
 
   case 43:
 #line 117 "syn_tree.y"
                                {}
-#line 1712 "y.tab.c"
+#line 1690 "syn_tree.tab.c"
     break;
 
   case 44:
 #line 118 "syn_tree.y"
                                {}
-#line 1718 "y.tab.c"
+#line 1696 "syn_tree.tab.c"
     break;
 
   case 45:
 #line 119 "syn_tree.y"
                                {}
-#line 1724 "y.tab.c"
+#line 1702 "syn_tree.tab.c"
     break;
 
   case 46:
 #line 120 "syn_tree.y"
                               {}
-#line 1730 "y.tab.c"
+#line 1708 "syn_tree.tab.c"
     break;
 
   case 47:
 #line 121 "syn_tree.y"
                               {}
-#line 1736 "y.tab.c"
+#line 1714 "syn_tree.tab.c"
     break;
 
   case 48:
 #line 122 "syn_tree.y"
                                        {}
-#line 1742 "y.tab.c"
+#line 1720 "syn_tree.tab.c"
     break;
 
   case 49:
 #line 123 "syn_tree.y"
                                       {}
-#line 1748 "y.tab.c"
+#line 1726 "syn_tree.tab.c"
     break;
 
   case 50:
 #line 126 "syn_tree.y"
                                                 {}
-#line 1754 "y.tab.c"
+#line 1732 "syn_tree.tab.c"
     break;
 
   case 51:
 #line 127 "syn_tree.y"
                                        {}
-#line 1760 "y.tab.c"
+#line 1738 "syn_tree.tab.c"
     break;
 
   case 52:
 #line 128 "syn_tree.y"
                         {}
-#line 1766 "y.tab.c"
+#line 1744 "syn_tree.tab.c"
     break;
 
   case 53:
 #line 129 "syn_tree.y"
                 { yyerror("Maybe missing ';' or operand? \n"); }
-#line 1772 "y.tab.c"
+#line 1750 "syn_tree.tab.c"
     break;
 
   case 54:
 #line 131 "syn_tree.y"
                                                        {}
-#line 1778 "y.tab.c"
+#line 1756 "syn_tree.tab.c"
     break;
 
   case 55:
 #line 132 "syn_tree.y"
                                          {}
-#line 1784 "y.tab.c"
+#line 1762 "syn_tree.tab.c"
     break;
 
   case 56:
 #line 133 "syn_tree.y"
                  {}
-#line 1790 "y.tab.c"
+#line 1768 "syn_tree.tab.c"
     break;
 
   case 57:
 #line 135 "syn_tree.y"
                           {}
-#line 1796 "y.tab.c"
+#line 1774 "syn_tree.tab.c"
     break;
 
   case 58:
 #line 136 "syn_tree.y"
                    {}
-#line 1802 "y.tab.c"
+#line 1780 "syn_tree.tab.c"
     break;
 
   case 59:
 #line 137 "syn_tree.y"
                  {}
-#line 1808 "y.tab.c"
+#line 1786 "syn_tree.tab.c"
     break;
 
   case 60:
 #line 138 "syn_tree.y"
                          {}
-#line 1814 "y.tab.c"
+#line 1792 "syn_tree.tab.c"
     break;
 
   case 61:
 #line 139 "syn_tree.y"
                                      {}
-#line 1820 "y.tab.c"
+#line 1798 "syn_tree.tab.c"
     break;
 
   case 62:
 #line 141 "syn_tree.y"
                                            {}
-#line 1826 "y.tab.c"
+#line 1804 "syn_tree.tab.c"
     break;
 
   case 63:
 #line 142 "syn_tree.y"
                  {}
-#line 1832 "y.tab.c"
+#line 1810 "syn_tree.tab.c"
     break;
 
 
-#line 1836 "y.tab.c"
+#line 1814 "syn_tree.tab.c"
 
       default: break;
     }

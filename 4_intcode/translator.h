@@ -4,25 +4,37 @@
 #include <iomanip>
 #include <memory>
 #include <stack>
-#include <vector>
+#include <map>
 #include <queue>
-#include "syn_tree.tab.h"
+#include <string.h>
+// #include "syn_tree.tab.h"
 using namespace std;
 
 extern int yylineno;
 extern char *yytext;
+
+struct node
+{
+    int lineNo; 
+    string name;//type name
+    string idName;
+    int intVal=0;
+    float floatVal=0;
+};
+
+node* createNode(char *name, int lineno);
 class symbol_table
 {
 private:
     struct entry
     {
         string identifier;
-        yytokentype t;
+        string _type;
         bool isFunc;
         int addr;
         shared_ptr<symbol_table> fptr;
     };
-    vector<entry> _table;
+    map<string,entry> _table;
     shared_ptr<symbol_table> prev = nullptr;
     int _size = 0;
 
@@ -30,11 +42,11 @@ public:
     symbol_table() = default;
     symbol_table(shared_ptr<symbol_table> t);
     ~symbol_table() = default;
-    void enter(const char *lexeme, yytokentype type, int offset);
-    void enterproc(const char *lexeme, shared_ptr<symbol_table> fptr);
+    bool enter(string lexeme, string type, int offset);
+    bool enterproc(string lexeme, shared_ptr<symbol_table> fptr);
     void addwidth(int width);
     int size()const;
-    const vector<entry>&table()const;
+    const map<string,symbol_table::entry>&table()const;
     friend ostream &operator<<(ostream &os, symbol_table *t);
 };
 

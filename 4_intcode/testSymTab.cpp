@@ -10,10 +10,10 @@ int main(int argc, char const *argv[])
     t.offsetSt.push(0);
     
     auto temp=t.tblSt.top();
-    temp->enter("a",INT,t.offsetSt.top());
+    temp->enter("a","INT",t.offsetSt.top());
     t.addwidth(44);
     
-    temp->enter("x",INT,t.offsetSt.top());
+    temp->enter("x","INT",t.offsetSt.top());
     t.addwidth(4);
     
     auto t2=mktable(t.tblSt.top());
@@ -21,7 +21,7 @@ int main(int argc, char const *argv[])
     t.offsetSt.push(0);
     
     temp=t.tblSt.top();
-    temp->enter("i",INT,t.offsetSt.top());
+    temp->enter("i","INT",t.offsetSt.top());
     t.addwidth(4);
     
     temp=t.tblSt.top();
@@ -44,20 +44,20 @@ int main(int argc, char const *argv[])
     t.offsetSt.push(0);
 
     temp=t.tblSt.top();
-    temp->enter("k",INT,t.offsetSt.top());
+    temp->enter("k","INT",t.offsetSt.top());
     t.addwidth(4);
     temp=t.tblSt.top();
-    temp->enter("v",INT,t.offsetSt.top());
+    temp->enter("v","INT",t.offsetSt.top());
     t.addwidth(4);
 
     auto t5=mktable(t.tblSt.top());
     t.tblSt.push(t5);
     t.offsetSt.push(0);
     temp=t.tblSt.top();
-    temp->enter("i",INT,t.offsetSt.top());
+    temp->enter("i","INT",t.offsetSt.top());
     t.addwidth(4);
     temp=t.tblSt.top();
-    temp->enter("j",INT,t.offsetSt.top());
+    temp->enter("j","INT",t.offsetSt.top());
     t.addwidth(4);
 
     temp=t.tblSt.top();
