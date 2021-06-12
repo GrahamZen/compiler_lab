@@ -2,25 +2,19 @@ CXX=g++
 TARGET= main
 LEXER= lex
 TESTFILE=test.cpp
-all: $(TARGET) lex
+all: syn_tree.tab.c $(TARGET)
 
-
-lex_test: lex
-	./$(LEXER) < $(TESTFILE)
-
-$(LEXER): lex_only.yy.c main.cpp
-	$(CXX) -o $@  $^ -DLEX
 
 syn_test: $(TARGET) $(TESTFILE)
 	./$(TARGET) < $(TESTFILE)
 
-$(TARGET): main.cpp syn_tree.tab.c lex.yy.c syn_tree.c 
+$(TARGET): main.cpp translator.cpp lex.yy.c syn_tree.c  
 
 syn_tree.tab.c:syn_tree.y
 	bison -d  $<
 
-lex_only.yy.c: lex_only.l
-	flex -o $@ $< 
+# lex_only.yy.c: lex_only.l
+# 	flex -o $@ $< 
 
 lex.yy.c: lexer.l
 	flex $< 
