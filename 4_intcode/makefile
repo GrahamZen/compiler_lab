@@ -1,4 +1,5 @@
 CXX=g++
+CXXFLAGS=-Wno-write-strings
 TARGET= main
 LEXER= lex
 TESTFILE=test.cpp
