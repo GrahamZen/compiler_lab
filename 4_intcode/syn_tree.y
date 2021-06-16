@@ -17,8 +17,7 @@ struct node* a;
 
 %token <a> Le  Ge  Eq  Ne Def  And  Or  IntConstant RealConstant REAL  StringConstant  Identifier  Void  INT  WHILE  If  Else  Return Operator BEGIN_KEY END_KEY MAIN WRITE READ 
 %type  <a> Programs Program MethodDecl FormalParams FormalParam Block Statements Statement LocalVarDecl 
-Type AssignStmt  ReturnStmt IfStmt WriteStmt ReadStmt  BoolExpression Expression MultiplicativeExpr 
-PrimaryExpr ActualParams WhileStmt
+Type AssignStmt  ReturnStmt IfStmt WriteStmt ReadStmt  BoolExpression Expression ActualParams WhileStmt
 
 %left '+' '-'
 %left '*' '/'
@@ -26,7 +25,7 @@ PrimaryExpr ActualParams WhileStmt
 
 %%
 Programs :
-    M Program{global_tab.tblSt.top()->addwidth(global_tab.offsetSt.top());global_tab.tblSt.pop();global_tab.offsetSt.pop();cout<<global_tab.t;}
+    M Program{global_tab.tblSt.top()->addwidth(global_tab.offsetSt.top());global_tab.tblSt.pop();global_tab.offsetSt.pop();cout<<global_tab.t;cout<<global_tab.generator<<endl;}
     ;
 M: /* empty */{global_tab.tblSt.push(global_tab.t);global_tab.offsetSt.push(0);}
     ;
@@ -98,7 +97,7 @@ Type : INT{}
     ;
 
 AssignStmt  : Identifier Def Expression ';'{tmpIdName=$1->idName;}
-    |  Identifier Def StringConstant ';'{tmpIdName=$1->idName;}
+    |  Identifier Def StringConstant ';'{tmpIdName=$1->idName;global_tab.generator.gen("=",$1->idName,$3->idName);}
     | error ';' { yyerror("Maybe missing ';'? \n"); }
     ;
 ReturnStmt : Return Expression ';'{}
@@ -123,21 +122,18 @@ BoolExpression : Expression Eq Expression {}
     | BoolExpression Or BoolExpression{}
     ;
 
-Expression : Expression  '+' MultiplicativeExpr {}
-    | Expression '-' MultiplicativeExpr{}
-    | MultiplicativeExpr{}
-    | error ';' { yyerror("Maybe missing ';' or operand? \n"); }
-    ;
-MultiplicativeExpr : MultiplicativeExpr '*' PrimaryExpr{}
-    | MultiplicativeExpr '/'  PrimaryExpr{}
-    | PrimaryExpr{}
-    ;
-PrimaryExpr : IntConstant {}
+Expression : Expression  '+' Expression {}
+    | Expression '-' Expression{}
+    | Expression '*' Expression{}
+    | Expression '/' Expression{}
+    | IntConstant {}
     | RealConstant {}
     | Identifier {}
     | '(' Expression ')' {}
     | Identifier '(' ActualParams ')'{}
+    | error ';' { yyerror("Maybe missing ';' or operand? \n"); }
     ;
+
 ActualParams : ActualParams  ',' Expression{}
     |  Expression{}
     ;

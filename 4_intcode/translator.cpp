@@ -49,7 +49,7 @@ bool symbol_table::enter(string lexeme, string type, int offset)
     if (_table.find(lexeme) != _table.end())
     {
 #ifdef YACC
-        yyerror("duplicated variable definition\n");
+        yyerror("duplicated variable definition.\n");
 #endif // YACC
         return false;
     }
@@ -62,7 +62,7 @@ bool symbol_table::enterproc(string lexeme, shared_ptr<symbol_table> fptr)
     if (_table.find(lexeme) != _table.end())
     {
 #ifdef YACC
-        yyerror("duplicated function definition\n");
+        yyerror("duplicated function definition.\n");
 #endif // YACC
         return false;
     }
@@ -73,6 +73,23 @@ void symbol_table::addwidth(int width)
 {
     _size = width;
 }
+
+string symbol_table::newTemp()
+{
+    tmpCnt++;
+    return "t"+to_string(tmpCnt);
+}
+
+string symbol_table::lookup(string idName)
+{
+    if(_table.find(idName)!=_table.end())return idName;
+    else
+#ifdef YACC
+        yyerror("referenced non-existed variable.\n");
+#endif // YACC
+    return string();
+}
+
 int symbol_table::size() const
 {
     return _size;

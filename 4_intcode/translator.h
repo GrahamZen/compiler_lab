@@ -44,6 +44,8 @@ public:
     bool enter(string lexeme, string type, int offset);
     bool enterproc(string lexeme, shared_ptr<symbol_table> fptr);
     void addwidth(int width);
+    string newTemp();
+    string lookup(string idName);
     int size() const;
     const map<string, symbol_table::entry> &table() const;
     friend ostream &operator<<(ostream &os, shared_ptr<symbol_table> t);
@@ -52,6 +54,7 @@ private:
     map<string, entry> _table;
     shared_ptr<symbol_table> prev = nullptr;
     int _size = 0;
+    int tmpCnt=0;
 };
 
 shared_ptr<symbol_table> mktable(shared_ptr<symbol_table> t);
