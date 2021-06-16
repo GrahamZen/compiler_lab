@@ -82,6 +82,6 @@ int main(int argc, char const *argv[])
     temp->addwidth(t.offsetSt.top());
     t.tblSt.pop();
     t.offsetSt.pop();
-    cout<<t.t.get();
+    cout<<t.t;
     return 0;
 }

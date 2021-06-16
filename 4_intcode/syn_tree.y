@@ -1,4 +1,4 @@
-// ref:https://blog.csdn.net/xzz_hust/article/details/45009147 https://blog.csdn.net/qq_24421591/article/details/50045933
+// ref:https://blog.csdn.net/xzz_hust/article/details/45009147 
 %{
 
 #include "translator.h"
@@ -26,7 +26,7 @@ PrimaryExpr ActualParams WhileStmt
 
 %%
 Programs :
-    M Program{global_tab.tblSt.top()->addwidth(global_tab.offsetSt.top());global_tab.tblSt.pop();global_tab.offsetSt.pop();cout<<global_tab.t.get();}
+    M Program{global_tab.tblSt.top()->addwidth(global_tab.offsetSt.top());global_tab.tblSt.pop();global_tab.offsetSt.pop();cout<<global_tab.t;}
     ;
 M: /* empty */{global_tab.tblSt.push(global_tab.t);global_tab.offsetSt.push(0);}
     ;

@@ -1445,7 +1445,7 @@ yyreduce:
     {
   case 2:
 #line 29 "syn_tree.y"
-             {global_tab.tblSt.top()->addwidth(global_tab.offsetSt.top());global_tab.tblSt.pop();global_tab.offsetSt.pop();cout<<global_tab.t.get();}
+             {global_tab.tblSt.top()->addwidth(global_tab.offsetSt.top());global_tab.tblSt.pop();global_tab.offsetSt.pop();cout<<global_tab.t;}
 #line 1450 "y.tab.c"
     break;
 

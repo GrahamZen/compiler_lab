@@ -72,7 +72,7 @@ const map<string,symbol_table::entry>&symbol_table::table()const{
     return _table;
 }
 
-ostream &operator<<(ostream &os, symbol_table *t)
+ostream &operator<<(ostream &os, shared_ptr<symbol_table> t)
 {
     if(!t)return os;
     queue<pair<shared_ptr<symbol_table>,string>>symTabq;
@@ -110,4 +110,8 @@ translator::translator() : t(new symbol_table()) {}
 void translator::addwidth(int width)
 {
     offsetSt.top() += width;
+}
+
+void translator::gen(string sentence){
+    
 }

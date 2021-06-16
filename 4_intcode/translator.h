@@ -6,7 +6,6 @@
 #include <stack>
 #include <map>
 #include <queue>
-#include <string.h>
 // #include "syn_tree.tab.h"
 using namespace std;
 
@@ -25,7 +24,7 @@ struct node
 node* createNode(char *name, int lineno);
 class symbol_table
 {
-private:
+public:
     struct entry
     {
         string identifier;
@@ -34,26 +33,29 @@ private:
         int addr;
         shared_ptr<symbol_table> fptr;
     };
-    map<string,entry> _table;
-    shared_ptr<symbol_table> prev = nullptr;
-    int _size = 0;
-
-public:
-    symbol_table() = default;
+    symbol_table(){
+        cout<<"symbol_table created.\n";
+    }
     symbol_table(shared_ptr<symbol_table> t);
-    ~symbol_table() = default;
+    ~symbol_table(){cout<<"symbol_table destroyed.\n";};
     bool enter(string lexeme, string type, int offset);
     bool enterproc(string lexeme, shared_ptr<symbol_table> fptr);
     void addwidth(int width);
     int size()const;
     const map<string,symbol_table::entry>&table()const;
-    friend ostream &operator<<(ostream &os, symbol_table *t);
+    friend ostream &operator<<(ostream &os, shared_ptr<symbol_table> t);
+private:
+    map<string,entry> _table;
+    shared_ptr<symbol_table> prev = nullptr;
+    int _size = 0;
+
 };
 
 shared_ptr<symbol_table> mktable(shared_ptr<symbol_table> t);
 class translator
 {
-    // private:
+private:
+    string code;
 public:
     translator();
     ~translator() = default;
@@ -61,6 +63,7 @@ public:
     shared_ptr<symbol_table> t = nullptr;
     stack<shared_ptr<symbol_table>> tblSt;
     stack<int> offsetSt;
+    void gen(string sentence);
 };
 
 #endif
