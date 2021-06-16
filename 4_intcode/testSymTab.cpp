@@ -83,5 +83,10 @@ int main(int argc, char const *argv[])
     t.tblSt.pop();
     t.offsetSt.pop();
     cout<<t.t;
+    t.generator.gen("goto","2");
+    t.generator.gen(3);
+    t.generator.gen("+","a","b","c");
+    t.generator.gen("=","a","b");
+    cout<<t.generator<<endl;
     return 0;
 }
