@@ -1,10 +1,14 @@
 #include "translator.h"
 #include <algorithm>
+#include <cstring>
 translator global_tab;
 string tmpIdName;
+int funcArgNum;
+bool isTypeDef;
 map<string, int> type2size = {
     {"INT", 4},
     {"REAL", 4}};
+
 string getTokenStr(int token)
 {
     static const char *token_strs[] = {
@@ -19,23 +23,23 @@ void yyerror(char *s)
     fprintf(stderr, "line %d: %s\n", yylineno, s);
 }
 
-node *createNode(char *name, int lineno)
+node *createNode(char *typeName, int lineno)
 {
     auto root = new node();
-    root->lineNo = lineno;
-    root->name = name;
+    root->_lineNo = lineno;
+    root->typeName = typeName;
     /* 3 case of terminal:
     *   string
     *   int
     *   float
     */
-    if (root->name == "Identifier" || root->name == "StringConstant")
+    if (root->typeName == "Identifier" || root->typeName == "StringConstant")
     {
         root->idName = string(yytext);
     }
-    else if (root->name == "IntConstant")
+    else if (root->typeName == "IntConstant")
         root->intVal = atoi(yytext);
-    else if (root->name == "RealConstant")
+    else if (root->typeName == "RealConstant")
         root->floatVal = atof(yytext);
     return root;
 }
@@ -49,24 +53,24 @@ bool symbol_table::enter(string lexeme, string type, int offset)
     if (_table.find(lexeme) != _table.end())
     {
 #ifdef YACC
-        yyerror("duplicated variable definition.\n");
+        yyerror("Duplicated variable definition.\n");
 #endif // YACC
         return false;
     }
     // enter(top(tblptr),id.lexeme,T.type,top(offset));
-    _table[lexeme] = entry{lexeme, type, false, offset, nullptr};
+    _table[lexeme] = entry{lexeme, type, false,false, offset, nullptr};
     return true;
 }
-bool symbol_table::enterproc(string lexeme, shared_ptr<symbol_table> fptr)
+bool symbol_table::enterproc(string lexeme, shared_ptr<symbol_table> fptr,bool isMain)
 {
     if (_table.find(lexeme) != _table.end())
     {
 #ifdef YACC
-        yyerror("duplicated function definition.\n");
+        yyerror("Duplicated function definition.\n");
 #endif // YACC
         return false;
     }
-    _table[lexeme] = entry{lexeme, "Identifier", true, 0, fptr};
+    _table[lexeme] = entry{lexeme, "Identifier", true,isMain, 0, fptr};
     return true;
 }
 void symbol_table::addwidth(int width)
@@ -77,16 +81,27 @@ void symbol_table::addwidth(int width)
 string symbol_table::newTemp()
 {
     tmpCnt++;
-    return "t"+to_string(tmpCnt);
+    return "t" + to_string(tmpCnt);
+}
+string symbol_table::newLabel()
+{
+    labelCnt++;
+    return "t" + to_string(labelCnt);
 }
 
-string symbol_table::lookup(string idName)
+string symbol_table::lookup(string idName,bool errFlag)
 {
-    if(_table.find(idName)!=_table.end())return idName;
-    else
+    if (_table.find(idName) != _table.end())
+        return idName;
+    else if(errFlag)
+    {
 #ifdef YACC
-        yyerror("referenced non-existed variable.\n");
+        auto msg=string("Referenced non-existed variable ")+idName+".";
+        char*str=new char[msg.size()];
+        strcpy(str,msg.c_str());
+        yyerror(str);
 #endif // YACC
+    }
     return string();
 }
 
@@ -122,7 +137,7 @@ ostream &operator<<(ostream &os, shared_ptr<symbol_table> t)
             if (record.isFunc)
             {
                 symTabq.push(make_pair(record.fptr, record.identifier));
-                os << left << setw(20) << record.identifier << '|' << left << setw(8) << "FUNC" << '|' << endl;
+                os << left << setw(20) << record.identifier+(record.isMain?"<main>":"") << '|' << left << setw(8) << "FUNC" << '|' << endl;
             }
             else
                 os << left << setw(20) << record.identifier << '|' << left << setw(8) << record._type << '|' << record.addr << endl;
@@ -149,7 +164,7 @@ void intCodeGenerator::gen(string op, string result, string arg1, string arg2)
 {
     ct.emplace_back(op, result, arg1, arg2);
 }
-void intCodeGenerator::gen(int label)
+void intCodeGenerator::gen(string label)
 {
     ct.emplace_back(label);
 }
@@ -157,12 +172,16 @@ void intCodeGenerator::gen(int label)
 string intCodeGenerator::Quad2Str(const codeQuad &c) const
 {
     if (c.isLabel)
-        return to_string(c._label) + ':';
+        return c._label + ':';
     if (string("+-*/").find(c._op) != string::npos)
-        return '\t'+c._result + ' ' + '=' + ' ' + c._arg1 + ' ' + c._op + ' ' + c._arg2;
+        return '\t' + c._result + " = " + c._arg1 + ' ' + c._op + ' ' + c._arg2;
     if (c._op == "=")
-        return '\t'+c._result + ' ' + '=' + ' ' + c._arg1;
-    return '\t'+ c._op + ' ' + c._result;
+        return '\t' + c._result + " = " + c._arg1;
+    if (c._op == "call")
+        return '\t' + c._result + " = " + c._op + ' ' + c._arg1 + ", " + c._arg2;
+    if (c._op == "read" || c._op == "write")
+        return "\tcall " + c._op +", "+ c._result;
+    return '\t' + c._op + ' ' + c._result;
 }
 
 ostream &operator<<(ostream &os, const intCodeGenerator &t)

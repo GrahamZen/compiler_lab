@@ -2,6 +2,8 @@
 
 int main(int argc, char const *argv[])
 {
+    node a;
+    auto b=new node(a);
     translator t;
     t.tblSt.push(t.t);
     t.offsetSt.push(0);

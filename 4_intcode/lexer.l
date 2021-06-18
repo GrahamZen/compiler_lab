@@ -3,6 +3,8 @@
 #include "syn_tree.tab.h"
 int cur_line_num = 1;
 void lex_error(char* msg, int line);
+extern std::string tmpIdName;
+
 %}
 %option yylineno
 
@@ -45,7 +47,7 @@ Identifier          ([_a-zA-Z][_a-zA-Z0-9]*)
 {INT}               { yylval.a=createNode("IntConstant",yylineno); return IntConstant;     }
 {REAL}              { yylval.a=createNode("RealConstant",yylineno);return RealConstant;    }
 {STRING}            { yylval.a=createNode("StringConstant",yylineno);return StringConstant;}
-{Identifier}        { yylval.a=createNode("Identifier",yylineno);return Identifier;        }
+{Identifier}        { yylval.a=createNode("Identifier",yylineno);tmpIdName=string(yytext);return Identifier;        }
 
 <<EOF>>             { return 0;                                                                 }
 
