@@ -8,6 +8,10 @@ bool isTypeDef;
 map<string, int> type2size = {
     {"INT", 4},
     {"REAL", 4}};
+map<string, int> typePrior = {
+    {"BOOL", 0},
+    {"INT", 1},
+    {"REAL", 2}};
 
 string getTokenStr(int token)
 {
@@ -58,10 +62,10 @@ bool symbol_table::enter(string lexeme, string type, int offset)
         return false;
     }
     // enter(top(tblptr),id.lexeme,T.type,top(offset));
-    _table[lexeme] = entry{lexeme, type, false, false, offset, nullptr};
+    _table[lexeme] = entry{lexeme, type, false, false, offset,nullptr, nullptr};
     return true;
 }
-bool symbol_table::enterproc(string lexeme, shared_ptr<symbol_table> fptr, bool isMain)
+bool symbol_table::enterproc(string lexeme, string retType, shared_ptr<symbol_table> fptr,vector<string>param, bool isMain)
 {
     if (_table.find(lexeme) != _table.end())
     {
@@ -70,7 +74,7 @@ bool symbol_table::enterproc(string lexeme, shared_ptr<symbol_table> fptr, bool 
 #endif // YACC
         return false;
     }
-    _table[lexeme] = entry{lexeme, "Identifier", true, isMain, 0, fptr};
+    _table[lexeme] = entry{lexeme, "Identifier", true, isMain, 0, make_shared<vector<string>>(param), fptr,retType};
     return true;
 }
 void symbol_table::addwidth(int width)
@@ -92,7 +96,7 @@ string symbol_table::newLabel()
 string symbol_table::lookup(string idName, bool errFlag)
 {
     if (_table.find(idName) != _table.end())
-        return idName;
+        return _table[idName]._type;
     else if (errFlag)
     {
 #ifdef YACC
@@ -103,6 +107,22 @@ string symbol_table::lookup(string idName, bool errFlag)
 #endif // YACC
     }
     return string();
+}
+
+shared_ptr<symbol_table::entry> symbol_table::getEntry(string idName,bool errFlag)
+{
+    if (_table.find(idName) != _table.end())
+        return make_shared<symbol_table::entry>(_table[idName]);
+    else if (errFlag)
+    {
+#ifdef YACC
+        auto msg = string("Referenced non-existed function ") + idName + ".";
+        char *str = new char[msg.size()];
+        strcpy(str, msg.c_str());
+        yyerror(str);
+#endif // YACC
+    }
+    return nullptr;
 }
 
 int symbol_table::size() const
@@ -125,9 +145,9 @@ ostream &operator<<(ostream &os, shared_ptr<symbol_table> t)
         auto p = symTabq.front();
         auto table = p.first->table();
         symTabq.pop();
-        os << "----------------------------------" << endl
+        os << "----------------------------------------------" << endl
            << "<table>" << left << setw(13) << p.second << "|" << p.first->size() << endl
-           << "----------------------------------" << endl;
+           << "----------------------------------------------" << endl;
         auto vec = vector<pair<string, symbol_table::entry>>(table.begin(), table.end());
         sort(vec.begin(), vec.end(), [](pair<const std::string, symbol_table::entry> p1, pair<const std::string, symbol_table::entry> p2)
              { return p1.second.addr < p2.second.addr; });
@@ -137,12 +157,18 @@ ostream &operator<<(ostream &os, shared_ptr<symbol_table> t)
             if (record.isFunc)
             {
                 symTabq.push(make_pair(record.fptr, record.identifier));
-                os << left << setw(20) << record.identifier + (record.isMain ? "<main>" : "") << '|' << left << setw(8) << "FUNC" << '|' << endl;
+                os << left << setw(20) << record.identifier + (record.isMain ? "<main>" : "") << '|' << left << setw(8) << "FUNC" << '|' ;
+                os<<ent.second.retType;
+                os<<'(';
+                for(const auto &typeName:*ent.second.typeStack)
+                    os<<setw(5)<< typeName;
+                os<<')';
+                os<<endl;
             }
             else
                 os << left << setw(20) << record.identifier << '|' << left << setw(8) << record._type << '|' << record.addr << endl;
         }
-        os << "----------------------------------" << endl
+        os << "----------------------------------------------" << endl
            << endl;
     }
     return os;
@@ -209,3 +235,8 @@ ostream &operator<<(ostream &os, const intCodeGenerator &t)
     }
     return os;
 }
+
+string typeExpand(string type1,string type2){
+    return typePrior[type1]<typePrior[type2]?type1:type2;
+}
+

@@ -1,5 +1,5 @@
 /** this is a comment line in the sample program **/
- INT f2(INT x, INT y ) 
+ INT f2(INT x, REAL y ) 
  BEGIN 
     INT z;
     z := x*x - y*y;
@@ -8,12 +8,10 @@
  INT MAIN f1() 
  BEGIN
     INT x:=-333.33;
-    REAL y:=2112;
-    WHILE(x<3 || y>3) READ(x, "A41.input");
-    IF(x==3) y := x;
-    ELSE 
-        IF(x==3) y := x + 2;
-            y :=x + 1;
+    REAL y:=x;
+    WHILE(x<3 && y>3) READ(x, "A41.input");
     READ(y, "A42.input");
-
+    INT z;
+    z := f2(x,y) + f2(x,y);
+    WRITE (z, "A4.output"); 
  END

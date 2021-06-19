@@ -12,7 +12,7 @@ syn_test: $(TARGET) $(TESTFILE)
 $(TARGET): main.cpp translator.cpp lex.yy.c syn_tree.c  
 
 syn_tree.tab.c:syn_tree.y
-	bison -d -v  $<
+	bison -vdt  $<
 
 # lex_only.yy.c: lex_only.l
 # 	flex -o $@ $< 

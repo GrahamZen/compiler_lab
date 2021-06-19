@@ -1,0 +1,32 @@
+0f2:
+1	t1 = x * x
+2	t2 = y * y
+3	t3 = t1 - t2
+4	z = t3
+5	return z
+6f1:
+7	x = -333.329987
+8	y = x
+9	if x < 3, goto 11
+10	goto 17
+11	if y > 3, goto 13
+12	goto 17
+13	param x
+14	param "A41.input"
+15	call read, 2
+16	goto 9
+17	param y
+18	param "A42.input"
+19	call read, 2
+20	param x
+21	param y
+22	t3 = call f2, 2
+23	param x
+24	param y
+25	t4 = call f2, 2
+26	t5 = t3 + t4
+27	z = t5
+28	param z
+29	param "A4.output"
+30	call write, 2
+

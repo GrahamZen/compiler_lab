@@ -4,6 +4,7 @@
 
 #include "translator.h"
 #include <cstring>
+#include <fstream>
 extern int yyparse (void);
 extern int yylex (void);
 extern int yylineno;
@@ -28,7 +29,14 @@ Type AssignStmt  ReturnStmt IfStmt WriteStmt ReadStmt  BoolExpression Expression
 
 %%
 Programs :
-    {global_tab.tblSt.push(global_tab.t);global_tab.offsetSt.push(0);}Program{global_tab.tblSt.top()->addwidth(global_tab.offsetSt.top());global_tab.tblSt.pop();global_tab.offsetSt.pop();cout<<global_tab.generator<<endl;}
+    {
+        global_tab.tblSt.push(global_tab.t);global_tab.offsetSt.push(0);}Program{global_tab.tblSt.top()->addwidth(global_tab.offsetSt.top());global_tab.tblSt.pop();global_tab.offsetSt.pop();
+        ofstream codestm("test.ir");
+        codestm<<global_tab.generator<<endl;
+        ofstream symTabStm("symbolTable.txt");
+        symTabStm<<global_tab.t<<endl;
+
+    }
     ;
 
 Program : MethodDecl {}
@@ -40,14 +48,14 @@ MethodDecl :N Type Identifier O '(' FormalParams ')'  Block{
         tmp->addwidth(global_tab.offsetSt.top());
         global_tab.tblSt.pop();
         global_tab.offsetSt.pop();
-        global_tab.tblSt.top()->enterproc($3->idName,tmp);
+        global_tab.tblSt.top()->enterproc($3->idName,$2->typeName,tmp,$6->_typeStack);
     }
     |N Type MAIN Identifier O '(' FormalParams ')'  Block{
         auto tmp=global_tab.tblSt.top();
         tmp->addwidth(global_tab.offsetSt.top());
         global_tab.tblSt.pop();
         global_tab.offsetSt.pop();
-        global_tab.tblSt.top()->enterproc($4->idName,tmp,true);
+        global_tab.tblSt.top()->enterproc($4->idName,$2->typeName,tmp,$7->_typeStack,true);
     }
     ;
 N: /* empty */{auto t=mktable(global_tab.tblSt.top());
@@ -58,11 +66,13 @@ O: /* empty */{global_tab.generator.gen(tmpIdName);}
     ;
 
 
-FormalParams : FormalParams  ',' FormalParam{}
-    | FormalParam{}
+FormalParams : FormalParams  ',' FormalParam{$$=new node(yylineno,*$1,$3->typeName);}
+    | FormalParam{$$=new node(yylineno,vector<string>({$1->typeName}));}
     | /* empty */{}
     ;
-FormalParam : Type Identifier{global_tab.tblSt.top()->enter($2->idName,$1->typeName,global_tab.offsetSt.top());global_tab.addwidth(type2size[$1->typeName]);}
+FormalParam : Type Identifier{global_tab.tblSt.top()->enter($2->idName,$1->typeName,global_tab.offsetSt.top());global_tab.addwidth(type2size[$1->typeName]);
+    $$->typeName=$1->typeName;
+    }
     ;
 
 
@@ -88,7 +98,7 @@ Statement : Block{$$=new node(yylineno,*$1);}
 
 
 LocalVarDecl : Type Identifier ';' {
-    if(!global_tab.lookup($2->idName,false).empty()){
+    if(!global_tab.lookup($2->idName,0,false).empty()){
         auto msg=string("duplicated definition for ")+$2->idName;
         char*str=new char[msg.size()];
         strcpy(str,msg.c_str());
@@ -104,7 +114,12 @@ LocalVarDecl : Type Identifier ';' {
     | Type error ';' { yyerror("Maybe missing Identifier? \n"); }
     ;
 
-WhileStmt : WHILE '(' BoolExpression ')' Statement{}
+WhileStmt : WHILE M '(' BoolExpression ')' M Statement{
+    global_tab.backpatch($7->_nextlist,$2->_quad);
+    global_tab.backpatch($4->_truelist,$6->_quad);
+    $$=new node(yylineno,make_shared<list<int>>(),make_shared<list<int>>(),make_shared<list<int>>(*$4->_falselist));
+    global_tab.generator.gen("goto", to_string($2->_quad));
+}
     ;
 
 
@@ -117,7 +132,7 @@ AssignStmt  : Identifier Def Expression ';'{
     tmpIdName=$1->idName;
     if(isTypeDef){global_tab.generator.gen("=",$1->idName,$3->_addr);isTypeDef=false;}
     else
-        global_tab.generator.gen("=",global_tab.lookup($1->idName),$3->_addr);
+        global_tab.generator.gen("=",(global_tab.lookup($1->idName,0).empty()?"":$1->idName),$3->_addr);
     }
     |  Identifier Def StringConstant ';'{tmpIdName=$1->idName;global_tab.generator.gen("=",$1->idName,$3->idName);}
     | error ';' { yyerror("Maybe missing ';'? \n"); }
@@ -177,19 +192,35 @@ BoolExpression : Expression RELOP Expression{
 
 M : /* empty */{$$=new node(yylineno,global_tab.nextQuad());}
     ;
-Expression : Expression  '+' Expression {$$=new node(yylineno,global_tab.newTemp());global_tab.generator.gen("+",$$->_addr,$1->_addr,$3->_addr);}
-    | Expression '-' Expression{$$=new node(yylineno,global_tab.newTemp());global_tab.generator.gen("-",$$->_addr,$1->_addr,$3->_addr);}
-    | Expression '*' Expression{$$=new node(yylineno,global_tab.newTemp());global_tab.generator.gen("*",$$->_addr,$1->_addr,$3->_addr);}
-    | Expression '/' Expression{$$=new node(yylineno,global_tab.newTemp());global_tab.generator.gen("/",$$->_addr,$1->_addr,$3->_addr);}
-    | IntConstant {$$=new node(yylineno,to_string($1->intVal));}
-    | RealConstant {$$=new node(yylineno,to_string($1->floatVal));}
-    | Identifier {$$=new node(yylineno,global_tab.lookup($1->idName));}
-    | '(' Expression ')' {$$=new node(yylineno,*$2);}
-    | Identifier '(' ActualParams ')'{$$=new node(yylineno,global_tab.newTemp());global_tab.generator.gen("call",$$->_addr,$1->idName,to_string(funcArgNum));funcArgNum=0;}//TODO:lookup for funcName
+Expression : Expression  '+' Expression {$$=new node(yylineno,global_tab.newTemp());global_tab.generator.gen("+",$$->_addr,$1->_addr,$3->_addr);$$->typeName=typeExpand($1->typeName,$3->typeName);}
+    | Expression '-' Expression{$$=new node(yylineno,global_tab.newTemp());global_tab.generator.gen("-",$$->_addr,$1->_addr,$3->_addr);$$->typeName=typeExpand($1->typeName,$3->typeName);}
+    | Expression '*' Expression{$$=new node(yylineno,global_tab.newTemp());global_tab.generator.gen("*",$$->_addr,$1->_addr,$3->_addr);$$->typeName=typeExpand($1->typeName,$3->typeName);}
+    | Expression '/' Expression{$$=new node(yylineno,global_tab.newTemp());global_tab.generator.gen("/",$$->_addr,$1->_addr,$3->_addr);$$->typeName=typeExpand($1->typeName,$3->typeName);}
+    | IntConstant {$$=new node(yylineno,to_string($1->intVal));$$->typeName="INT";}
+    | RealConstant {$$=new node(yylineno,to_string($1->floatVal));$$->typeName="REAL";}
+    | Identifier {auto typeName=global_tab.lookup($1->idName,0);$$=new node(yylineno,(typeName.empty()?"":$1->idName));$$->typeName=typeName;}
+    | '(' Expression ')' {$$=new node(yylineno,*$2);$$->typeName=$2->typeName;}
+    | Identifier '(' ActualParams ')'{
+        auto entry=global_tab.getEntry($1->idName,1);
+        if(!entry||$3->_typeStack!=*entry->typeStack){
+            auto msg = string("no matching function for call to ") + $1->idName + ".";
+            char *str = new char[msg.size()];
+            strcpy(str, msg.c_str());
+            yyerror(str);
+            $$=new node(yylineno,global_tab.newTemp());
+            global_tab.generator.gen("call",$$->_addr,$1->idName,to_string(funcArgNum));
+            funcArgNum=0;
+        }else{
+            $$=new node(yylineno,global_tab.newTemp());
+            $$->typeName=entry->retType;
+            global_tab.generator.gen("call",$$->_addr,$1->idName,to_string(funcArgNum));
+            funcArgNum=0;
+        }
+    }//TODO:lookup for funcName
     | error ';' { yyerror("Maybe missing ';' or operand? \n"); }
     ;
 
-ActualParams : ActualParams  ',' Expression{global_tab.generator.gen("param",$3->_addr);funcArgNum++;}
-    |  Expression{global_tab.generator.gen("param",$1->_addr);funcArgNum++;}
+ActualParams : ActualParams  ',' Expression{global_tab.generator.gen("param",$3->_addr);funcArgNum++;$$->_typeStack.push_back($3->typeName);}
+    |  Expression{global_tab.generator.gen("param",$1->_addr);funcArgNum++;$$->_typeStack={$1->typeName};}
     ;
 %%
