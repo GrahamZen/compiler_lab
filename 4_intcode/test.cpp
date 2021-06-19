@@ -9,9 +9,11 @@
  BEGIN
     INT x:=-333.33;
     REAL y:=2112;
-    WHILE(x<3 && y>3) READ(x, "A41.input");
+    WHILE(x<3 || y>3) READ(x, "A41.input");
+    IF(x==3) y := x;
+    ELSE 
+        IF(x==3) y := x + 2;
+            y :=x + 1;
     READ(y, "A42.input");
-    INT z;
-    z := f2(x,y) + f2(y,x);
-    WRITE (z, "A4.output"); 
+
  END

@@ -18,7 +18,10 @@ extern char *yytext;
 struct node
 {
     node()=default;
-    node(int lineNo, const node &n,string next=string(),list<string> True=list<string>(),list<string> False=list<string>()){*this=n;_lineNo=lineNo;_next=next;_True=True;_False=False;}
+    explicit node(int lineNo, const node &n){*this=n;_lineNo=lineNo;if(!n._nextlist)_nextlist=make_shared<list<int>>();}
+    explicit node(int lineNo, const node &n,shared_ptr<list<int>> truelist,shared_ptr<list<int>> falselist,shared_ptr<list<int>>nextlist){*this=n;_lineNo=lineNo;_truelist=truelist;_falselist=falselist;_nextlist=nextlist;}
+    explicit node(int lineNo, shared_ptr<list<int>> truelist,shared_ptr<list<int>> falselist,shared_ptr<list<int>> nextlist){_lineNo=lineNo;_truelist=truelist;_falselist=falselist;_nextlist=nextlist;}
+    explicit node(int lineNo, int quad):_quad(quad){}
     explicit node(int lineNo,string addr=string(),string code=string()):_lineNo(lineNo),_addr(addr),_code(code){}
     int _lineNo;
     string typeName; //type name
@@ -27,8 +30,8 @@ struct node
     float floatVal = 0;
     string _code;
     string _addr;
-    list<string> _True,_False;
-    string _next;
+    shared_ptr<list<int>> _truelist,_falselist,_nextlist;
+    int _quad=0;
 };
 
 node *createNode(char *name, int lineno);
@@ -70,9 +73,12 @@ private:
 
 shared_ptr<symbol_table> mktable(shared_ptr<symbol_table> t);
 
+
+class translator;
 class intCodeGenerator
 {
 public:
+    friend class translator;
     struct codeQuad
     {
         string _op, _arg1, _arg2, _result;
@@ -92,10 +98,10 @@ public:
     void gen(string op, string result, string arg1 = string(), string arg2 = string());
     void gen(string label);
 
-    string Quad2Str(const codeQuad &c) const;
     friend ostream &operator<<(ostream &os, const intCodeGenerator &t);
-
+    int quadCnt(){return ct.size();}
 private:
+    string Quad2Str(const codeQuad &c) const;
     vector<codeQuad> ct;
 };
 
@@ -118,14 +124,10 @@ public:
     string newTemp(){
         return tblSt.top()->newTemp();
     }
-    string newLabel(){
-        return tblSt.top()->newLabel();
-    }
-    void label(string &l){
-        auto nl=newLabel();
-        generator.gen(nl);
-        l=nl;
-    }
+    int nextQuad(){return generator.quadCnt();}
+    void backpatch(shared_ptr<list<int>>l,int quad);
 };
+
+shared_ptr<list<int>> mkList(int label);
 
 #endif

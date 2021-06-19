@@ -12,11 +12,11 @@ POSITIVE            ([0-9]+)
 INT                 [+-]?{POSITIVE}
 REAL                {INT}.{POSITIVE}
 STRING              (\042[^\042\n]*\042)
-OPERATOR            ([+*-/%=,;!<>(){}])
+OPERATOR            ([+*-/%=,;!(){}])
 SINGLE_COMMENT1     ("//"[^\n]*)
 SINGLE_COMMENT2     (\/\*(?:[^\*]|\*+[^\/\*])*\*+\/)
 Identifier          ([_a-zA-Z][_a-zA-Z0-9]*)
-
+RELOP               (!=|==|<|>|<=|>=)
 %%
 
 [\n]                { cur_line_num++;                                                           }
@@ -26,11 +26,7 @@ Identifier          ([_a-zA-Z][_a-zA-Z0-9]*)
 
 {OPERATOR}          { yylval.a=createNode("OP",yylineno);return yytext[0];                 }   
 
-"<="                { yylval.a=createNode("Le",yylineno);return Le;                        }
-">="                { yylval.a=createNode("Ge",yylineno);return Ge;                        }
 ":="                { yylval.a=createNode("Def",yylineno);return Def;                      }
-"=="                { yylval.a=createNode("Eq",yylineno);return Eq;                        }
-"!="                { yylval.a=createNode("Ne",yylineno);return Ne;                        }
 "&&"                { yylval.a=createNode("And",yylineno);return And;                      }
 "||"                { yylval.a=createNode("Or",yylineno);return Or;                        }
 "INT"               { yylval.a=createNode("INT",yylineno);return INT;                      }
@@ -48,6 +44,7 @@ Identifier          ([_a-zA-Z][_a-zA-Z0-9]*)
 {REAL}              { yylval.a=createNode("RealConstant",yylineno);return RealConstant;    }
 {STRING}            { yylval.a=createNode("StringConstant",yylineno);return StringConstant;}
 {Identifier}        { yylval.a=createNode("Identifier",yylineno);tmpIdName=string(yytext);return Identifier;        }
+{RELOP}             { yylval.a=createNode("RELOP",yylineno);tmpIdName=string(yytext);return RELOP;}
 
 <<EOF>>             { return 0;                                                                 }
 

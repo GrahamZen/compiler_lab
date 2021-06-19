@@ -86,9 +86,12 @@ int main(int argc, char const *argv[])
     t.offsetSt.pop();
     cout<<t.t;
     t.generator.gen("goto","2");
-    t.generator.gen(3);
+    t.generator.gen("3");
     t.generator.gen("+","a","b","c");
     t.generator.gen("=","a","b");
     cout<<t.generator<<endl;
+
+    auto l=make_shared<list<int>>(std::initializer_list<int>{1,2});
+    cout<<l->front()<<endl;
     return 0;
 }

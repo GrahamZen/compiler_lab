@@ -33,7 +33,7 @@ node *createNode(char *typeName, int lineno)
     *   int
     *   float
     */
-    if (root->typeName == "Identifier" || root->typeName == "StringConstant")
+    if (root->typeName == "Identifier" || root->typeName == "StringConstant" || root->typeName == "RELOP")
     {
         root->idName = string(yytext);
     }
@@ -58,10 +58,10 @@ bool symbol_table::enter(string lexeme, string type, int offset)
         return false;
     }
     // enter(top(tblptr),id.lexeme,T.type,top(offset));
-    _table[lexeme] = entry{lexeme, type, false,false, offset, nullptr};
+    _table[lexeme] = entry{lexeme, type, false, false, offset, nullptr};
     return true;
 }
-bool symbol_table::enterproc(string lexeme, shared_ptr<symbol_table> fptr,bool isMain)
+bool symbol_table::enterproc(string lexeme, shared_ptr<symbol_table> fptr, bool isMain)
 {
     if (_table.find(lexeme) != _table.end())
     {
@@ -70,7 +70,7 @@ bool symbol_table::enterproc(string lexeme, shared_ptr<symbol_table> fptr,bool i
 #endif // YACC
         return false;
     }
-    _table[lexeme] = entry{lexeme, "Identifier", true,isMain, 0, fptr};
+    _table[lexeme] = entry{lexeme, "Identifier", true, isMain, 0, fptr};
     return true;
 }
 void symbol_table::addwidth(int width)
@@ -89,16 +89,16 @@ string symbol_table::newLabel()
     return "t" + to_string(labelCnt);
 }
 
-string symbol_table::lookup(string idName,bool errFlag)
+string symbol_table::lookup(string idName, bool errFlag)
 {
     if (_table.find(idName) != _table.end())
         return idName;
-    else if(errFlag)
+    else if (errFlag)
     {
 #ifdef YACC
-        auto msg=string("Referenced non-existed variable ")+idName+".";
-        char*str=new char[msg.size()];
-        strcpy(str,msg.c_str());
+        auto msg = string("Referenced non-existed variable ") + idName + ".";
+        char *str = new char[msg.size()];
+        strcpy(str, msg.c_str());
         yyerror(str);
 #endif // YACC
     }
@@ -137,7 +137,7 @@ ostream &operator<<(ostream &os, shared_ptr<symbol_table> t)
             if (record.isFunc)
             {
                 symTabq.push(make_pair(record.fptr, record.identifier));
-                os << left << setw(20) << record.identifier+(record.isMain?"<main>":"") << '|' << left << setw(8) << "FUNC" << '|' << endl;
+                os << left << setw(20) << record.identifier + (record.isMain ? "<main>" : "") << '|' << left << setw(8) << "FUNC" << '|' << endl;
             }
             else
                 os << left << setw(20) << record.identifier << '|' << left << setw(8) << record._type << '|' << record.addr << endl;
@@ -151,6 +151,20 @@ ostream &operator<<(ostream &os, shared_ptr<symbol_table> t)
 shared_ptr<symbol_table> mktable(shared_ptr<symbol_table> t)
 {
     return make_shared<symbol_table>(t);
+}
+shared_ptr<list<int>> mkList(int label)
+{
+    auto l = make_shared<list<int>>();
+    l->push_back(label);
+    return l;
+}
+void translator::backpatch(shared_ptr<list<int>>l,int quad){
+    if(!l)return;
+    for(auto i:*l){
+        // cout<<"backpatch:"<<i<<",quad="<<quad<<endl;
+        generator.ct[i]._result=to_string(quad);
+    }
+    l->clear();
 }
 
 translator::translator() : t(new symbol_table()) {}
@@ -180,15 +194,18 @@ string intCodeGenerator::Quad2Str(const codeQuad &c) const
     if (c._op == "call")
         return '\t' + c._result + " = " + c._op + ' ' + c._arg1 + ", " + c._arg2;
     if (c._op == "read" || c._op == "write")
-        return "\tcall " + c._op +", "+ c._result;
+        return "\tcall " + c._op + ", " + c._result;
+    if (string(">=<=!==").find(c._op)!=string::npos)
+        return "\tif " + c._arg1 +' '+ c._op+' '+c._arg2 + ", goto " + c._result;
     return '\t' + c._op + ' ' + c._result;
 }
 
 ostream &operator<<(ostream &os, const intCodeGenerator &t)
 {
+    int i=0;
     for (const auto &c : t.ct)
     {
-        os << t.Quad2Str(c) << endl;
+        os <<i++<< t.Quad2Str(c) << endl;
     }
     return os;
 }

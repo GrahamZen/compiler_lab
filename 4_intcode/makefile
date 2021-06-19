@@ -12,7 +12,7 @@ syn_test: $(TARGET) $(TESTFILE)
 $(TARGET): main.cpp translator.cpp lex.yy.c syn_tree.c  
 
 syn_tree.tab.c:syn_tree.y
-	bison -d  $<
+	bison -d -v  $<
 
 # lex_only.yy.c: lex_only.l
 # 	flex -o $@ $< 
@@ -29,7 +29,7 @@ check:$(TARGET)
 			./$(TARGET)<$(TESTFILE)
 
 clean_temps:
-	rm valgrind-out.txt *.log *.tab.c *.yy.c *.tab.h  2> /dev/null || echo > /dev/null
+	rm valgrind-out.txt *.log *.tab.c *.yy.c *.tab.h *.output *.exe 2> /dev/null || echo > /dev/null
 
 clean: clean_temps
 	rm $(LEXER) $(TARGET) 2> /dev/null || echo > /dev/null
