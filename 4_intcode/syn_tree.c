@@ -1459,7 +1459,7 @@ yyreduce:
   case 3:
 #line 33 "syn_tree.y"
                                                                                 {global_tab.tblSt.top()->addwidth(global_tab.offsetSt.top());global_tab.tblSt.pop();global_tab.offsetSt.pop();
-        ofstream codestm("test.ir");
+        ofstream codestm("test.ll");
         codestm<<global_tab.generator<<endl;
         ofstream symTabStm("symbolTable.txt");
         symTabStm<<global_tab.t<<endl;

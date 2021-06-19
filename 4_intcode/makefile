@@ -29,7 +29,7 @@ check:$(TARGET)
 			./$(TARGET)<$(TESTFILE)
 
 clean_temps:
-	rm valgrind-out.txt *.log *.tab.c *.yy.c *.tab.h *.output *.exe 2> /dev/null || echo > /dev/null
+	rm valgrind-out.txt *.log *.tab.c *.yy.c *.tab.h *.output *.exe *.ll *.txt 2> /dev/null || echo > /dev/null
 
 clean: clean_temps
 	rm $(LEXER) $(TARGET) 2> /dev/null || echo > /dev/null

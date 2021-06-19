@@ -31,7 +31,7 @@ Type AssignStmt  ReturnStmt IfStmt WriteStmt ReadStmt  BoolExpression Expression
 Programs :
     {
         global_tab.tblSt.push(global_tab.t);global_tab.offsetSt.push(0);}Program{global_tab.tblSt.top()->addwidth(global_tab.offsetSt.top());global_tab.tblSt.pop();global_tab.offsetSt.pop();
-        ofstream codestm("test.ir");
+        ofstream codestm("test.ll");
         codestm<<global_tab.generator<<endl;
         ofstream symTabStm("symbolTable.txt");
         symTabStm<<global_tab.t<<endl;
