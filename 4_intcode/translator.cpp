@@ -87,12 +87,6 @@ string symbol_table::newTemp()
     tmpCnt++;
     return "t" + to_string(tmpCnt);
 }
-string symbol_table::newLabel()
-{
-    labelCnt++;
-    return "t" + to_string(labelCnt);
-}
-
 string symbol_table::lookup(string idName, bool errFlag)
 {
     if (_table.find(idName) != _table.end())
@@ -228,10 +222,9 @@ string intCodeGenerator::Quad2Str(const codeQuad &c) const
 
 ostream &operator<<(ostream &os, const intCodeGenerator &t)
 {
-    int i=0;
     for (const auto &c : t.ct)
     {
-        os <<i++<< t.Quad2Str(c) << endl;
+        os << t.Quad2Str(c) << endl;
     }
     return os;
 }
@@ -240,3 +233,24 @@ string typeExpand(string type1,string type2){
     return typePrior[type1]<typePrior[type2]?type1:type2;
 }
 
+intCodeGenerator& intCodeGenerator::postProcess(){
+    map<int,string>convTab;
+    int label=0;
+    for(auto &quad:ct){
+        if(quad._op=="goto"){
+            if(convTab.find(label=stoi(quad._result))==convTab.end())
+                convTab[label]="L"+to_string(++labelCnt);
+            quad._result=convTab[label];
+        }
+        if(quad._op==">"||quad._op=="<"||quad._op==">="||quad._op=="<="||quad._op=="=="||quad._op=="!="){
+            if(convTab.find(label=stoi(quad._result))==convTab.end())
+                convTab[label]="L"+to_string(++labelCnt);
+            quad._result=convTab[label];
+        }
+    }
+    for(auto iter=convTab.rbegin();iter!=convTab.rend();++iter){
+        auto vbegin=ct.begin();
+        ct.insert(vbegin+iter->first,codeQuad(iter->second));
+    }
+    return *this;
+}

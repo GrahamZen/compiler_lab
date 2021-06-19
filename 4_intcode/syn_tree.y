@@ -32,7 +32,7 @@ Programs :
     {
         global_tab.tblSt.push(global_tab.t);global_tab.offsetSt.push(0);}Program{global_tab.tblSt.top()->addwidth(global_tab.offsetSt.top());global_tab.tblSt.pop();global_tab.offsetSt.pop();
         ofstream codestm("test.ll");
-        codestm<<global_tab.generator<<endl;
+        codestm<<global_tab.generator.postProcess()<<endl;
         ofstream symTabStm("symbolTable.txt");
         symTabStm<<global_tab.t<<endl;
 

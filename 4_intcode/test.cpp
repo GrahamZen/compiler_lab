@@ -10,8 +10,11 @@
     INT x:=-333.33;
     REAL y:=x;
     WHILE(x<3 && y>3) READ(x, "A41.input");
-    READ(y, "A42.input");
     INT z;
+    IF(x-y<3)
+        READ(y, "A42.input");
+    IF(x-y<3)
+        READ(y, "A42.input");
+        WRITE (z, "A4.output"); 
     z := f2(x,y) + f2(x,y);
-    WRITE (z, "A4.output"); 
  END

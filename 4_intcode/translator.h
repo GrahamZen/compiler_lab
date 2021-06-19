@@ -59,7 +59,6 @@ public:
     bool enterproc(string lexeme, string retType, shared_ptr<symbol_table> fptr,vector<string>param, bool isMain=false);
     void addwidth(int width);
     string newTemp();
-    string newLabel();
     string lookup(string idName,bool errFlag);
     shared_ptr<entry> getEntry(string idName,bool errFlag);
     int size() const;
@@ -71,7 +70,6 @@ private:
     shared_ptr<symbol_table> prev = nullptr;
     int _size = 0;
     int tmpCnt=0;
-    int labelCnt=0;
 };
 
 shared_ptr<symbol_table> mktable(shared_ptr<symbol_table> t);
@@ -100,12 +98,14 @@ public:
     ~intCodeGenerator() = default;
     void gen(string op, string result, string arg1 = string(), string arg2 = string());
     void gen(string label);
+    intCodeGenerator& postProcess();
 
     friend ostream &operator<<(ostream &os, const intCodeGenerator &t);
     int quadCnt(){return ct.size();}
 private:
     string Quad2Str(const codeQuad &c) const;
     vector<codeQuad> ct;
+    int labelCnt=0;
 };
 
 class translator
