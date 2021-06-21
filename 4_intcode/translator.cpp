@@ -27,6 +27,15 @@ void yyerror(char *s)
     fprintf(stderr, "line %d: %s\n", yylineno, s);
 }
 
+
+void yyerrorStr(string s){
+        char *str = new char[s.size()];
+        strcpy(str, s.c_str());
+        yyerror(str);
+        delete[]str;
+}
+
+
 node *createNode(char *typeName, int lineno)
 {
     auto root = new node();
@@ -94,10 +103,7 @@ string symbol_table::lookup(string idName, bool errFlag)
     else if (errFlag)
     {
 #ifdef YACC
-        auto msg = string("Referenced non-existed variable ") + idName + ".";
-        char *str = new char[msg.size()];
-        strcpy(str, msg.c_str());
-        yyerror(str);
+        yyerrorStr(string("Referenced non-existed variable ") + idName + ".");
 #endif // YACC
     }
     return string();
@@ -110,10 +116,7 @@ shared_ptr<symbol_table::entry> symbol_table::getEntry(string idName,bool errFla
     else if (errFlag)
     {
 #ifdef YACC
-        auto msg = string("Referenced non-existed function ") + idName + ".";
-        char *str = new char[msg.size()];
-        strcpy(str, msg.c_str());
-        yyerror(str);
+        yyerrorStr(string("Referenced non-existed function ") + idName + ".");
 #endif // YACC
     }
     return nullptr;
@@ -186,6 +189,12 @@ void translator::backpatch(shared_ptr<list<int>>l,int quad){
     }
     l->clear();
 }
+
+bool translator::isDupVar(string varName)const{
+    const auto t = tblSt.top()->table();
+    return t.find(varName)!=t.end();
+}
+
 
 translator::translator() : t(new symbol_table()) {}
 

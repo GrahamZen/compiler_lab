@@ -5,6 +5,7 @@
     z := x*x - y*y;
     RETURN z; 
  END 
+
  INT MAIN f1() 
  BEGIN
     INT x:=-333.33;

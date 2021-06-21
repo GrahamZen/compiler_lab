@@ -15,6 +15,8 @@ using namespace std;
 extern int yylineno;
 extern char *yytext;
 
+void yyerrorStr(string s);
+
 struct node
 {
     node()=default;
@@ -64,7 +66,7 @@ public:
     int size() const;
     const map<string, symbol_table::entry> &table() const;
     friend ostream &operator<<(ostream &os, shared_ptr<symbol_table> t);
-
+    bool mainDeclared=false;
 private:
     map<string, entry> _table;
     shared_ptr<symbol_table> prev = nullptr;
@@ -142,6 +144,8 @@ public:
     }
     int nextQuad(){return generator.quadCnt();}
     void backpatch(shared_ptr<list<int>>l,int quad);
+    bool isDupVar(string varName)const;
+
 };
 
 shared_ptr<list<int>> mkList(int label);
