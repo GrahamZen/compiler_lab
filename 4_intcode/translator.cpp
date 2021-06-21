@@ -2,9 +2,10 @@
 #include <algorithm>
 #include <cstring>
 translator global_tab;
-string tmpIdName;
+string tmpIdName,tmpTypeName;
 int funcArgNum;
 bool isTypeDef;
+
 map<string, int> type2size = {
     {"INT", 4},
     {"REAL", 4}};
@@ -66,7 +67,7 @@ bool symbol_table::enter(string lexeme, string type, int offset)
     if (_table.find(lexeme) != _table.end())
     {
 #ifdef YACC
-        yyerror("Duplicated variable definition.\n");
+        yyerrorStr(string("error: redefinition of '")+lexeme+'\'');
 #endif // YACC
         return false;
     }
@@ -79,7 +80,7 @@ bool symbol_table::enterproc(string lexeme, string retType, shared_ptr<symbol_ta
     if (_table.find(lexeme) != _table.end())
     {
 #ifdef YACC
-        yyerror("Duplicated function definition.\n");
+        yyerrorStr(string("error: redefinition of '")+lexeme+'\'');
 #endif // YACC
         return false;
     }
@@ -103,7 +104,7 @@ string symbol_table::lookup(string idName, bool errFlag)
     else if (errFlag)
     {
 #ifdef YACC
-        yyerrorStr(string("Referenced non-existed variable ") + idName + ".");
+        yyerrorStr(string("Referenced non-existed variable ") + idName);
 #endif // YACC
     }
     return string();
@@ -116,7 +117,7 @@ shared_ptr<symbol_table::entry> symbol_table::getEntry(string idName,bool errFla
     else if (errFlag)
     {
 #ifdef YACC
-        yyerrorStr(string("Referenced non-existed function ") + idName + ".");
+        yyerrorStr(string("Referenced non-existed function ") + idName);
 #endif // YACC
     }
     return nullptr;

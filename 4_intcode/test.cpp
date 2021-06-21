@@ -8,8 +8,8 @@
 
  INT MAIN f1() 
  BEGIN
-    INT x:=-333.33;
-    REAL y:=x;
+    INT x:=3;
+    REAL y:=-333.33;
     WHILE(x<3 && y>3) READ(x, "A41.input");
     INT z;
     IF(x-y<3)

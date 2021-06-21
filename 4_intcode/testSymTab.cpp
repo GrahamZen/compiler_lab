@@ -1,10 +1,10 @@
 #include "translator.h"
 
-int f(){}
-int f(){}
 
 int main(int argc, char const *argv[])
 {
+    int a;
+    a=a+;
     // node a;
     // auto b=new node(a);
     // translator t;

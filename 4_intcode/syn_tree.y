@@ -10,6 +10,7 @@ extern int yylineno;
 extern void yyerror(char *s);
 extern translator global_tab;
 extern std::string tmpIdName;
+extern std::string tmpTypeName;
 extern std::map<string,int>type2size;
 extern bool isTypeDef;
 extern int funcArgNum;
@@ -39,26 +40,27 @@ Program : MethodDecl {}
     |MethodDecl Program {}
     ;
 
-MethodDecl :N Type Identifier O '(' FormalParams ')'  Block{
+MethodDecl :N Type{tmpTypeName=$2->typeName;} Identifier O '(' FormalParams ')'  Block{
         auto tmp=global_tab.tblSt.top();
         tmp->addwidth(global_tab.offsetSt.top());
         global_tab.tblSt.pop();
         global_tab.offsetSt.pop();
-        global_tab.tblSt.top()->enterproc($3->idName,$2->typeName,tmp,$6->_typeStack);
+        global_tab.tblSt.top()->enterproc($4->idName,$2->typeName,tmp,$7->_typeStack);
     }
-    |N Type MAIN{if(global_tab.t->mainDeclared)yyerror("error: main function is declared.");
-        global_tab.t->mainDeclared=true;} Identifier{if(global_tab.isDupVar($5->idName))yyerrorStr("error: redefinition of '"+$5->idName+'\'');} O '(' FormalParams ')'  Block
+    |N Type{tmpTypeName=$2->typeName;} MAIN{if(global_tab.t->mainDeclared)yyerror("error: main function is declared.");
+        global_tab.t->mainDeclared=true;} Identifier{if(global_tab.isDupVar($6->idName))yyerrorStr("error: redefinition of '"+$6->idName+'\'');} O '(' FormalParams ')'  Block
     {
         auto tmp=global_tab.tblSt.top();
         tmp->addwidth(global_tab.offsetSt.top());
         global_tab.tblSt.pop();
         global_tab.offsetSt.pop();
-        global_tab.tblSt.top()->enterproc($5->idName,$2->typeName,tmp,$9->_typeStack,true);
+        global_tab.tblSt.top()->enterproc($6->idName,$2->typeName,tmp,$10->_typeStack,true);
     }
     ;
 N: /* empty */{auto t=mktable(global_tab.tblSt.top());
                 global_tab.tblSt.push(t);
-                global_tab.offsetSt.push(0);}
+                global_tab.offsetSt.push(0);
+                }
     ;
 O: /* empty */{global_tab.generator.gen(tmpIdName);}
     ;
@@ -96,14 +98,14 @@ Statement : Block{$$=new node(yylineno,*$1);}
 
 
 LocalVarDecl : Type Identifier ';' {
-    if(!global_tab.lookup($2->idName,0,false).empty()){
-        yyerrorStr(string("duplicated definition for ")+$2->idName);
-    }
     global_tab.tblSt.top()->enter($2->idName,$1->typeName,global_tab.offsetSt.top());
     global_tab.addwidth(type2size[$1->typeName]);
     
     }
-    | Type AssignStmt  {global_tab.tblSt.top()->enter(tmpIdName,$1->typeName,global_tab.offsetSt.top());
+    | Type AssignStmt  {if($1->typeName!=$2->typeName){
+        yyerrorStr("error: cannot convert ‘"+ $2->typeName + "’ to ‘"+ $1->typeName + "’ in initialization");
+    }
+        global_tab.tblSt.top()->enter(tmpIdName,$1->typeName,global_tab.offsetSt.top());
                         global_tab.addwidth(type2size[$1->typeName]);}
     | Type error ';' { yyerror("Maybe missing Identifier?"); }
     ;
@@ -124,6 +126,7 @@ Type : INT{isTypeDef=true;}
 
 AssignStmt  : Identifier Def Expression ';'{
     tmpIdName=$1->idName;
+    $$=new node(yylineno, *$3);
     if(isTypeDef){global_tab.generator.gen("=",$1->idName,$3->_addr);isTypeDef=false;}
     else
         global_tab.generator.gen("=",(global_tab.lookup($1->idName,0).empty()?"":$1->idName),$3->_addr);
@@ -131,7 +134,10 @@ AssignStmt  : Identifier Def Expression ';'{
     |  Identifier Def StringConstant ';'{tmpIdName=$1->idName;global_tab.generator.gen("=",$1->idName,$3->idName);}
     | error ';' { yyerror("Maybe missing ';'?"); }
     ;
-ReturnStmt : Return Expression ';'{global_tab.generator.gen("return",$2->_addr);}
+ReturnStmt : Return Expression ';'{global_tab.generator.gen("return",$2->_addr);
+    if($2->typeName!=tmpTypeName){
+    yyerrorStr("error: no viable conversion from returned value of type '"+ $2->typeName +"' to function return type '"+tmpTypeName+'\'');
+    }}
     ;
 IfStmt : 
     If '(' BoolExpression ')' M Statement {$<a>$=new node(yylineno,global_tab.nextQuad());$<a>$->_nextlist=mkList(global_tab.nextQuad());global_tab.generator.gen("goto","_");} Else M Statement{
@@ -197,7 +203,7 @@ Expression : Expression  '+' Expression {$$=new node(yylineno,global_tab.newTemp
     | Identifier '(' ActualParams ')'{
         auto entry=global_tab.getEntry($1->idName,1);
         if(!entry||$3->_typeStack!=*entry->typeStack){
-            yyerrorStr(string("no matching function for call to ") + $1->idName + ".");
+            yyerrorStr(string("error: no matching function for call to ") + $1->idName);
             $$=new node(yylineno,global_tab.newTemp());
             global_tab.generator.gen("call",$$->_addr,$1->idName,to_string(funcArgNum));
             funcArgNum=0;
@@ -207,8 +213,8 @@ Expression : Expression  '+' Expression {$$=new node(yylineno,global_tab.newTemp
             global_tab.generator.gen("call",$$->_addr,$1->idName,to_string(funcArgNum));
             funcArgNum=0;
         }
-    }//TODO:lookup for funcName
-    | error ';' { yyerror("Maybe missing ';' or operand?"); }
+    }
+    | error ';' { yyerror("expected primary-expression before ‘;’ token"); }
     ;
 
 ActualParams : ActualParams  ',' Expression{global_tab.generator.gen("param",$3->_addr);funcArgNum++;$$->_typeStack.push_back($3->typeName);}
