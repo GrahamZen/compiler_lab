@@ -13,10 +13,7 @@ $(TARGET): main.cpp translator.cpp lex.yy.c syn_tree.c
 
 syn_tree.tab.c:syn_tree.y
 	bison -vdt  $<
-
-# lex_only.yy.c: lex_only.l
-# 	flex -o $@ $< 
-
+	
 lex.yy.c: lexer.l
 	flex $< 
 

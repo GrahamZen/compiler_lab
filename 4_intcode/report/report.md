@@ -1,6 +1,6 @@
-# 语义分析程序及中间代码生成实验
+# <center>语义分析程序及中间代码生成实验</center>
 
-郑戈涵17338233
+<center>郑戈涵17338233</center>
 
 ## 实验目的
 
@@ -290,7 +290,7 @@ AssignStmt  : Identifier Def Expression ';'{
 
 参考课本的SDT，代码如下：
 
-<img src="report.assets/image-20210621234117910.png" alt="image-20210621234117910" style="zoom:50%;" />
+<img src="report.assets/image-20210621234117910.png" alt="image-20210621234117910" style="zoom: 33%;" />
 
 ```c++
 Expression : Expression  '+' Expression {$$=new node(yylineno,global_tab.newTemp());global_tab.generator.gen("+",$$->_addr,$1->_addr,$3->_addr);$$->typeName=typeExpand($1->typeName,$3->typeName);}
@@ -338,7 +338,7 @@ ActualParams : ActualParams  ',' Expression{global_tab.generator.gen("param",$3-
 
 参考课本中的翻译方案：
 
-![](report.assets/image-20210621235011297.png)
+<img src="report.assets/image-20210621235011297.png" style="zoom:50%;" />
 
 本语言没有其中的部分产生式。代码如下：
 
@@ -383,7 +383,7 @@ Statements :Statements M Statement{global_tab.backpatch($1->_nextlist,$2->_quad)
 
 参考课本的if语句的SDT:
 
-![image-20210621235624469](report.assets/image-20210621235624469.png)
+<img src="report.assets/image-20210621235624469.png" alt="image-20210621235624469" style="zoom:50%;" />
 
 代码如下：
 
@@ -408,7 +408,7 @@ IfStmt :
 
 参考课本的if语句的SDT:
 
-![image-20210621235712284](report.assets/image-20210621235712284.png)
+<img src="report.assets/image-20210621235712284.png" alt="image-20210621235712284" style="zoom:50%;" />
 
 代码如下：
 
@@ -440,10 +440,9 @@ global_tab.generator.gen("param",$5->idName);
 global_tab.generator.gen("read","2");}
     | READ error ';' { yyerror("Maybe missing Identifier or StringConstant?"); }
     ;
-
 ```
 
-但是本语言比较特殊，他不允许表达式在赋值语句，write语句和返回语句之外的位置出现，而函数调用实际上会规约为表达式，因此这部分在输出中间代码时处理，我添加了一些信息将其包装为函数调用语句，在输出时通过信号得知语句类型，除去额外信息再输出为中间代码。
+但是本语言比较特殊，他不允许表达式在赋值语句，write语句和返回语句之外的位置出现，而函数调用实际上会规约为表达式，因此在输出中间代码时处理，我添加了一些信息将其包装为函数调用语句，在输出时通过信号得知语句类型，除去额外信息再输出为中间代码。
 
 ## 语义错误检查
 
@@ -453,9 +452,220 @@ global_tab.generator.gen("read","2");}
 2. 函数在调用时未经定义。输出Referenced non-existed variable ‘xxx’
 3. 变量出现重复定义。输出redefinition of 'xxx'
 4. 函数出现重复定义（即同样的函数名出现了不止一次定义）。输出redefinition of 'xxx'
-5. MAIN函数出现重复定义（即MAIN函数出现了不止一次定义）。输出main function is declared.
+5. MAIN函数出现重复定义（即MAIN函数出现了不止一次定义）。输出main function is declared
 6. 赋值号两边的表达式类型不匹配。本语言仅允许表达式计算时的隐式转换。定义时要求显式的类型匹配。输出cannot convert ‘xxx'’ to ‘xxx’ in assignment
-7. 赋值号左边出现一个只有右值的表达式(语法分析时即不允许)。输出keyword typo?
+7. 赋值号左边出现一个只有右值的表达式(语法分析时即不允许)。输出Maybe missing ';'?
 8. 操作数类型不匹配或操作数类型与操作符不匹配。输出expected primary-expression before ‘;’ token
 9. return语句的返回类型与函数定义的返回类型不匹配。输出no viable conversion from returned value of type 'xxx' to function return type 'xxx'
 10. 函数调用时实参与形参的数目或类型不匹配。输出no matching function for call to 'xxx'
+11. READ和WRITE函数调用时形参的数目或类型不匹配，输出Maybe missing Identifier or StringConstant?
+
+## 实验结果
+
+本程序使用g++,yacc进行编译。
+
+makefile如下：
+
+```makefile
+CXX=g++
+CXXFLAGS=-Wno-write-strings -DYACC
+TARGET= main
+LEXER= lex
+TESTFILE=test.cpp
+all: syn_tree.tab.c $(TARGET)
+
+
+syn_test: $(TARGET) $(TESTFILE)
+	./$(TARGET) < $(TESTFILE)
+
+$(TARGET): main.cpp translator.cpp lex.yy.c syn_tree.c  
+
+syn_tree.tab.c:syn_tree.y
+	bison -vdt  $<
+	
+lex.yy.c: lexer.l
+	flex $< 
+
+check:$(TARGET)
+	valgrind --leak-check=full \
+			--show-leak-kinds=all \
+			--track-origins=yes \
+			--verbose \
+			--log-file=valgrind-out.txt \
+			./$(TARGET)<$(TESTFILE)
+
+clean_temps:
+	rm valgrind-out.txt *.log *.tab.c *.yy.c *.tab.h *.output *.exe *.ll *.txt 2> /dev/null || echo > /dev/null
+
+clean: clean_temps
+	rm $(LEXER) $(TARGET) 2> /dev/null || echo > /dev/null
+```
+
+使用命令`make`生成可执行文件main，执行
+
+```shell
+./main < test.cpp
+```
+
+在目录下产生两个文件，符号表`symbolTable.txt`和中间代码`test.ll`。
+
+### 合法代码测试
+
+测试代码如下：
+
+```c++
+/** this is a comment line in the sample program **/
+ INT f2(INT x, REAL y ) 
+ BEGIN 
+    INT z;
+    z := x*x - y*y;
+    RETURN z; 
+ END 
+
+ INT MAIN f1() 
+ BEGIN
+    INT x:=3;
+    REAL y:=-333.33;
+    WHILE(x<3 && y>3) READ(x, "A41.input");
+    INT z;
+    IF(x-y<3)
+    BEGIN
+        READ(y, "A42.input");
+        IF(x-y<2)
+            READ(x, "A42.input");
+            WRITE (z, "A4.output"); 
+    END
+    z := f2(x,y) + f2(x,y);
+ END
+```
+
+产生的符号表如下：
+
+```
+----------------------------------------------
+<table>main         |0
+----------------------------------------------
+f1<main>            |FUNC    |INT()
+f2                  |FUNC    |INT(INT  REAL )
+----------------------------------------------
+
+----------------------------------------------
+<table>f1           |12
+----------------------------------------------
+x                   |INT     |0
+y                   |REAL    |4
+z                   |INT     |8
+----------------------------------------------
+
+----------------------------------------------
+<table>f2           |12
+----------------------------------------------
+x                   |INT     |0
+y                   |REAL    |4
+z                   |INT     |8
+----------------------------------------------
+```
+
+产生的中间代码为：
+
+```
+f2:
+	t1 = x * x
+	t2 = y * y
+	t3 = t1 - t2
+	z = t3
+	return z
+f1:
+	x = 3
+	y = -333.329987
+L4:
+	if x < 3, goto L1
+	goto L2
+L1:
+	if y > 3, goto L3
+	goto L2
+L3:
+	param x
+	param "A41.input"
+	call read, 2
+	goto L4
+L2:
+	t2 = x - y
+	if t2 < 3, goto L5
+	goto L6
+L5:
+	param y
+	param "A42.input"
+	call read, 2
+	t4 = x - y
+	if t4 < 2, goto L7
+	goto L8
+L7:
+	param x
+	param "A42.input"
+	call read, 2
+L8:
+	param z
+	param "A4.output"
+	call write, 2
+L6:
+	param x
+	param y
+	t7 = call f2, 2
+	param x
+	param y
+	t8 = call f2, 2
+	t9 = t7 + t8
+	z = t9
+```
+
+### 非法代码测试
+
+在合法的测试代码的基础上增加**语义错误检查**部分提到的11种错误。
+
+```c++
+/** this is a comment line in the sample program **/
+ INT f2(INT x, REAL y ) 
+ BEGIN 
+    INT a;
+    INT a;
+    z := x*x - y*y;
+    RETURN x; 
+ END
+  
+ REAL f2(INT x, REAL y ) 
+ BEGIN 
+    INT z;
+    z := x*x - y*y;
+    RETURN x; 
+ END 
+
+ INT MAIN f1() 
+ BEGIN
+    INT x:="3";
+    REAL y:=-333.33;
+    y:="-333.33";
+    WHILE(x<3 && y>3) READ(x, "A41.input");
+    INT z;
+    3:=z;
+    IF(x-y<3)
+    BEGIN
+        READ(y, "A42.input");
+        IF(x-y<2)
+            READ("ff", "A42.input");
+            WRITE (z, "A4.output"); 
+    END
+ END
+ INT MAIN f4() 
+ BEGIN
+    INT z;
+    z := f2(x)+;
+ END
+```
+
+错误报告如下：
+
+![image-20210622144829346](report.assets/image-20210622144829346.png)
+
+确实发现了上面提到的11种错误。
+

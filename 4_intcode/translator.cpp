@@ -104,7 +104,7 @@ string symbol_table::lookup(string idName, bool errFlag)
     else if (errFlag)
     {
 #ifdef YACC
-        yyerrorStr(string("Referenced non-existed variable ") + idName);
+        yyerrorStr(string("error: referenced non-existed variable ") + idName);
 #endif // YACC
     }
     return string();
@@ -117,7 +117,7 @@ shared_ptr<symbol_table::entry> symbol_table::getEntry(string idName,bool errFla
     else if (errFlag)
     {
 #ifdef YACC
-        yyerrorStr(string("Referenced non-existed function ") + idName);
+        yyerrorStr(string("error: referenced non-existed function ") + idName);
 #endif // YACC
     }
     return nullptr;

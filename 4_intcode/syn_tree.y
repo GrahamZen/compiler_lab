@@ -77,7 +77,7 @@ FormalParam : Type Identifier{global_tab.tblSt.top()->enter($2->idName,$1->typeN
 
 
 Block : BEGIN_KEY Statements END_KEY {}
-    | error  { yyerror("keyword typo?"); }
+    | BEGIN_KEY error  { yyerror("keyword typo?"); }
     ;
 
 Statements :Statements M Statement{global_tab.backpatch($1->_nextlist,$2->_quad);$$=new node(yylineno,*$3);}
@@ -105,7 +105,7 @@ LocalVarDecl : Type Identifier ';' {
     | Type AssignStmt  {if($1->typeName!=$2->typeName){
         yyerrorStr("error: cannot convert ‘"+ $2->typeName + "’ to ‘"+ $1->typeName + "’ in initialization");
     }
-        global_tab.tblSt.top()->enter(tmpIdName,$1->typeName,global_tab.offsetSt.top());
+        global_tab.tblSt.top()->enter($2->idName,$1->typeName,global_tab.offsetSt.top());
                         global_tab.addwidth(type2size[$1->typeName]);}
     | Type error ';' { yyerror("Maybe missing Identifier?"); }
     ;
@@ -125,13 +125,30 @@ Type : INT{isTypeDef=true;}
     ;
 
 AssignStmt  : Identifier Def Expression ';'{
-    tmpIdName=$1->idName;
-    $$=new node(yylineno, *$3);
+    $$=new node(yylineno, *$1);
+    $$->typeName=$3->typeName;
     if(isTypeDef){global_tab.generator.gen("=",$1->idName,$3->_addr);isTypeDef=false;}
-    else
-        global_tab.generator.gen("=",(global_tab.lookup($1->idName,0).empty()?"":$1->idName),$3->_addr);
+    else{
+            auto typeName=global_tab.lookup($1->idName,0,false);
+            if(typeName !=$3->typeName){
+                yyerrorStr("error: cannot convert ‘"+ $3->typeName +"’ to ‘"+ typeName +"’ in assignment");
+            }
+            global_tab.generator.gen("=",(global_tab.lookup($1->idName,0).empty()?"":$1->idName),$3->_addr);
+        }
     }
-    |  Identifier Def StringConstant ';'{tmpIdName=$1->idName;global_tab.generator.gen("=",$1->idName,$3->idName);}
+    |  Identifier Def StringConstant ';'{
+        if(!isTypeDef){
+            auto typeName=global_tab.lookup($1->idName,0,false);
+            if(global_tab.lookup($1->idName,false) !=$3->typeName){
+            yyerrorStr("error: cannot convert ‘"+ $3->typeName +"’ to ‘"+ typeName +"’ in assignment");
+            }
+        }
+        $$=new node(yylineno, *$1);
+        $$->typeName=$3->typeName;
+        global_tab.generator.gen("=",$1->idName,$3->idName);
+        isTypeDef=false;
+        }
+        
     | error ';' { yyerror("Maybe missing ';'?"); }
     ;
 ReturnStmt : Return Expression ';'{global_tab.generator.gen("return",$2->_addr);
@@ -214,7 +231,7 @@ Expression : Expression  '+' Expression {$$=new node(yylineno,global_tab.newTemp
             funcArgNum=0;
         }
     }
-    | error ';' { yyerror("expected primary-expression before ‘;’ token"); }
+    | error ';' { yyerror("error: expected primary-expression before ‘;’ token"); }
     ;
 
 ActualParams : ActualParams  ',' Expression{global_tab.generator.gen("param",$3->_addr);funcArgNum++;$$->_typeStack.push_back($3->typeName);}
